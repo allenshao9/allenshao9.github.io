@@ -6,17 +6,15 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Oracle优化 | AllenShaoBlog</title>
+  <title>Tag: sql | AllenShaoBlog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Oracle优化思路理解SQL执行原理和过程 客户端把语句发给服务器端执行 ​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。  语句解析   查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Oracle优化">
-<meta property="og:url" content="http://yoursite.com/2020/04/13/oracle/index.html">
+  <meta name="description" content="��������">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AllenShaoBlog">
+<meta property="og:url" content="http://yoursite.com/tags/sql/index.html">
 <meta property="og:site_name" content="AllenShaoBlog">
-<meta property="og:description" content="Oracle优化思路理解SQL执行原理和过程 客户端把语句发给服务器端执行 ​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。  语句解析   查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执">
+<meta property="og:description" content="��������">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-04-13T11:43:20.330Z">
-<meta property="article:modified_time" content="2020-04-13T11:52:55.903Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Java��Oracle��DB">
 <meta name="twitter:card" content="summary">
@@ -155,214 +153,65 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-oracle" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
+            
   
-    <h1 class="article-title" itemprop="name">
-      Oracle优化
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2020" class="archive-year">2020</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	
+<a href="/2020/04/11/oracle/" class="archive-article-date">
+  	<time datetime="2020-04-11T15:50:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-11</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2020/04/11/oracle/">Oracle优化</a>
     </h1>
   
 
-        
-        
-        <!-- ������ͳ�� -->
-        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
-              <i class="icon-smile icon"></i> �Ķ�����<span id="busuanzi_value_page_pv"></span>��
-        </span>
+        <div class="article-info info-on-right">
+          
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">oracle</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">sql</a>
+        		</li>
+      		
+		</ul>
+	</div>
 
-<a href="/2020/04/13/oracle/" class="archive-article-date">
-  	<time datetime="2020-04-13T11:43:20.330Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-04-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Oracle优化思路"><a href="#Oracle优化思路" class="headerlink" title="Oracle优化思路"></a>Oracle优化思路</h1><h2 id="理解SQL执行原理和过程"><a href="#理解SQL执行原理和过程" class="headerlink" title="理解SQL执行原理和过程"></a>理解SQL执行原理和过程</h2><ul>
-<li><p><strong>客户端把语句发给服务器端执行</strong></p>
-<p>​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。</p>
-</li>
-<li><p><strong>语句解析</strong></p>
-<blockquote>
-<ol>
-<li>查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行计划。如果在数据高速缓存中,则服务器进程就会直接执行这个 SQL 语句,省去后续的工作。所以,采用高速数据缓存的话,可以提高 SQL 语句的查询效率。</li>
-<li>语句合法性检查(data dict cache)。当在高速缓存中找不到对应的 SQL 语句时则服务器进程就会开始检查这条语句的合法性。这里主要是对 SQL 语句的语法进行检查,看看其是否合乎语法规则。如果服务器进程认为这条 SQL 语句不符合语法规则的时候,就会把这个错误信息,反馈给客户端。注意:此阶段不会对 SQL 语句中所包含的表名、列名等等进行 SQL 他只是语法。</li>
-<li>语言含义检查(data dict cache)。若 SQL 语句符合语法上的定义的话,则服务器进程，接下去会对语句中的字段、表等内容进行检查。看看这些字段、表是否在数据库中。</li>
-<li>获得对象解析锁(control structer)。当语法、语义都正确后,系统就会对我们需要查询的对象加锁。这主要是为了保障数据的一致性,防止我们在查询的过程中,其他用户对这个对象的结构发生改变。</li>
-<li>数据访问权限的核对(data dict cache)。当语法、语义通过检查之后,客户端还不一定能够取得数据。服务器进程还会检查,你所连接的用户是否有这个数据访问的权限。</li>
-<li>确定最佳执行计划 。当语句与语法都没有问题,权限也匹配的话,服务器进程还是不会直接对数据库文件进行查询，服务器进程会根据一定的规则,对这条语句进行优化; 当服务器进程的优化器确定这条查询语句的最佳执行计划后,就会将这条 SQL 语句与执行计划保存到数据高速缓存。</li>
-</ol>
-</blockquote>
-</li>
-<li><p><strong>语句执行</strong></p>
-<blockquote>
-<ol>
-<li>语句解析只是对 SQL 语句的语法进行解析,以确保服务器能够知道这条语句到底表达 的是什么意思。等到语句解析完成之后,数据库服务器进程才会真正的执行这条 SQL 语句。</li>
-<li>若被选择行所在的数据块已经被读取到数据缓冲区的话,则服务器进程会直接把这个数据传递给客户端,而不是从数据库文件中去查询数据。</li>
-<li>若数据不在缓冲区中,则服务器进程将从数据库文件中查询相关数据,并把这些数据放入到数据缓冲区中(buffer cache)</li>
-</ol>
-</blockquote>
-</li>
-<li><p><strong>提取数据</strong></p>
-<p>​        当语句执行完成之后,查询到的数据还是在服务器进程中,还没有被传送到客户端的用户进程。所以,在服务器端的进程中,有一个专门负责数据提取的一段代码。他的作用就是把查询到的数据结果返回给用户端进程,从而完成整个查询动作。</p>
-</li>
-<li><p><strong>SQL语句的解析方式</strong></p>
-<blockquote>
-<p>SQL语句的解析有软解析soft parse与硬解析hard parse，以下是5个步骤：</p>
-<p>1：语法是否合法(sql写法)</p>
-<p>2：语义是否合法(权限，对象是否存在)</p>
-<p>3：检查该sql是否在公享池中存在</p>
-<p>– 如果存在,直接跳过4和5,运行sql. 此时算soft parse</p>
-<p>4：选择执行计划</p>
-<p>5：产生执行计划</p>
-</blockquote>
-</li>
-</ul>
-<p>查看系统中SQL解析的相关内容（parse count (total)=解析总次数、parse count (hard)=硬解析次数）    </p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="keyword">name</span>,<span class="keyword">value</span> <span class="keyword">from</span> v$sysstat <span class="keyword">where</span> <span class="keyword">name</span> <span class="keyword">like</span> <span class="string">'parse%'</span>;</span><br></pre></td></tr></table></figure>
+          
 
-<p>查询软解析率。如果软解析率低于30% ，则硬解析过多。 如果总解析量(parse count total)偏低，这项值可以被忽略</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">1</span>-(a.value/b.value)/<span class="number">100</span> <span class="keyword">as</span> <span class="string">"软解析率%"</span></span><br><span class="line"><span class="keyword">from</span> v$sysstat a,v$sysstat b</span><br><span class="line"><span class="keyword">Where</span> a.name=<span class="string">'parse count (hard)'</span> <span class="keyword">and</span> b.name=<span class="string">'parse count (total)'</span>;</span><br></pre></td></tr></table></figure>
-
-<p> 排查硬解析的次数 查询某条SQL执行的次数</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span>  SQL_TEXT <span class="keyword">as</span> <span class="keyword">SQL</span>文本,</span><br><span class="line">        EXECUTIONS <span class="keyword">as</span>  执行次数,</span><br><span class="line">        FIRST_LOAD_TIME <span class="keyword">as</span> 初次载入时间,</span><br><span class="line">        PARSE_CALLS <span class="keyword">as</span> 解析调用次数 ,</span><br><span class="line">        DISK_READS <span class="keyword">as</span> 读磁盘次数,</span><br><span class="line">        BUFFER_GETS <span class="keyword">as</span> 读缓存区次数 ,</span><br><span class="line">        OPTIMIZER_MODE <span class="keyword">as</span> <span class="keyword">SQL</span>语句的优化器模型 ,</span><br><span class="line">        CPU_TIME <span class="keyword">as</span> CPU使用时间单位毫秒</span><br><span class="line">         <span class="keyword">from</span> v$<span class="keyword">sql</span> <span class="keyword">where</span> sql_text <span class="keyword">like</span> <span class="string">'%hellouser%'</span>;</span><br></pre></td></tr></table></figure>
-
-<p>查看SQL只执行过一次的(分析相似的SQL找出硬解析SQL)</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> sql_text <span class="keyword">from</span> v$<span class="keyword">sql</span> <span class="keyword">where</span> EXECUTIONS=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="如何写出高性能的SQL"><a href="#如何写出高性能的SQL" class="headerlink" title="如何写出高性能的SQL"></a>如何写出高性能的SQL</h2><h2 id="如何正确使用表分区"><a href="#如何正确使用表分区" class="headerlink" title="如何正确使用表分区"></a>如何正确使用表分区</h2><h2 id="Oracle完成数据导入和导出"><a href="#Oracle完成数据导入和导出" class="headerlink" title="Oracle完成数据导入和导出"></a>Oracle完成数据导入和导出</h2>
-      
-
-      
-        <div class="page-reward">
-          <a href="javascript:;" class="page-reward-btn tooltip-top">
-            <div class="tooltip tooltip-east">
-            <span class="tooltip-item">
-              赏
-            </span>
-            <span class="tooltip-content">
-              <span class="tooltip-text">
-                <span class="tooltip-inner">
-                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
-                  <div class="reward-box">
-                    
-                    
-                  </div>
-                </span>
-              </span>
-            </span>
-          </div>
-          </a>
         </div>
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-
-      
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2020/04/13/oracle/" alt="微信分享二维码">
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-      
-      <div class="clearfix"></div>
-    </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-  
-<nav id="article-nav">
   
   
-    <a href="/2020/04/11/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Hello World</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-  
-  
+    </div></section>
   
 
-  
-
-  
-
-  
+    
 
 
           </div>
@@ -398,9 +247,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
+		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
@@ -466,6 +315,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">oracle</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">sql</a>
+              </li>
             
             <div class="clearfix"></div>
           </ul>
