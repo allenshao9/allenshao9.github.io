@@ -100,7 +100,7 @@
     root: '/',
     scheme: 'Gemini',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -444,13 +444,16 @@
 
       
         
-          <h1 id="Oracle优化思路"><a href="#Oracle优化思路" class="headerlink" title="Oracle优化思路"></a>Oracle优化思路</h1><h2 id="理解SQL执行原理和过程"><a href="#理解SQL执行原理和过程" class="headerlink" title="理解SQL执行原理和过程"></a>理解SQL执行原理和过程</h2><ul>
-<li><p><strong>客户端把语句发给服务器端执行</strong></p>
-<p>​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。</p>
-</li>
-<li><p><strong>语句解析</strong></p>
-<blockquote>
-<p>查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行计划。如果在数据高速缓存中,则服务器进程就会直接执行这个 SQL 语句,省去后续的工作。所以,采用高速数据缓存的话,可以提高 SQL 语句的查询效率。</p></blockquote></li></ul>
+          
+          Oracle优化思路
+理解SQL执行原理和过程
+客户端把语句发给服务器端执行
+​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。
+
+语句解析
+
+查询高速缓存(library cache)。服务器进程在接到客户端传送过
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/04/11/oracle/#more" rel="contents">
@@ -597,6 +600,9 @@
                 
             </div>
           
+          
+          
+
 
           
           
@@ -671,6 +677,8 @@
     
       <div class="back-to-top">
         <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
         
       </div>
     
@@ -1258,6 +1266,31 @@
   
 
   
+  
+  
+  <link rel="stylesheet" href="/lib/needsharebutton/needsharebutton.css">
+
+  
+  
+  <script src="/lib/needsharebutton/needsharebutton.js"></script>
+
+  <script>
+    
+      pbOptions = {};
+      
+          pbOptions.iconStyle = "default";
+      
+          pbOptions.boxForm = "horizontal";
+      
+          pbOptions.position = "bottomCenter";
+      
+          pbOptions.networks = "Weibo,Wechat,Douban,QQZone,Twitter,Facebook";
+      
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+    
+    
+  </script>
+
   
 
   
