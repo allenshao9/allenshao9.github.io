@@ -85,12 +85,12 @@
 
 <meta name="description" content="Oracle优化思路理解SQL执行原理和过程 客户端把语句发给服务器端执行 ​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。  语句解析  查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Oracle优化">
+<meta property="og:title" content="Oracle优化思路">
 <meta property="og:url" content="https://ysshao.cn/2020/04/11/oracle/index.html">
 <meta property="og:site_name" content="Ysshao&#39;Blog">
 <meta property="og:description" content="Oracle优化思路理解SQL执行原理和过程 客户端把语句发给服务器端执行 ​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。  语句解析  查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行">
 <meta property="article:published_time" content="2020-04-11T15:50:30.000Z">
-<meta property="article:modified_time" content="2020-04-14T06:16:27.575Z">
+<meta property="article:modified_time" content="2020-04-14T07:45:57.066Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Oracle">
 <meta property="article:tag" content="Sql">
@@ -130,7 +130,7 @@
 
 
 
-  <title>Oracle优化 | Ysshao'Blog</title>
+  <title>Oracle优化思路 | Ysshao'Blog</title>
   
 
 
@@ -319,7 +319,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Oracle优化</h1>
+          <h1 class="post-title" itemprop="name headline">Oracle优化思路</h1>
         
 
         <div class="post-meta">
@@ -382,7 +382,7 @@
 
           
           
-             <span id="/2020/04/11/oracle/" class="leancloud_visitors" data-flag-title="Oracle优化">
+             <span id="/2020/04/11/oracle/" class="leancloud_visitors" data-flag-title="Oracle优化思路">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -451,13 +451,14 @@
 <li><p><strong>语句解析</strong></p>
 <blockquote>
 <p>查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行计划。如果在数据高速缓存中,则服务器进程就会直接执行这个 SQL 语句,省去后续的工作。所以,采用高速数据缓存的话,可以提高 SQL 语句的查询效率。</p>
+<a id="more"></a>
+
 <p>语句合法性检查(data dict cache)。当在高速缓存中找不到对应的 SQL 语句时则服务器进程就会开始检查这条语句的合法性。这里主要是对 SQL 语句的语法进行检查,看看其是否合乎语法规则。如果服务器进程认为这条 SQL 语句不符合语法规则的时候,就会把这个错误信息,反馈给客户端。注意:此阶段不会对 SQL 语句中所包含的表名、列名等等进行 SQL 他只是语法。</p>
 <p>语言含义检查(data dict cache)。若 SQL 语句符合语法上的定义的话,则服务器进程，接下去会对语句中的字段、表等内容进行检查。看看这些字段、表是否在数据库中。</p>
 <p>获得对象解析锁(control structer)。当语法、语义都正确后,系统就会对我们需要查询的对象加锁。这主要是为了保障数据的一致性,防止我们在查询的过程中,其他用户对这个对象的结构发生改变。</p>
 <p>数据访问权限的核对(data dict cache)。当语法、语义通过检查之后,客户端还不一定能够取得数据。服务器进程还会检查,你所连接的用户是否有这个数据访问的权限。</p>
 <p>确定最佳执行计划 。当语句与语法都没有问题,权限也匹配的话,服务器进程还是不会直接对数据库文件进行查询，服务器进程会根据一定的规则,对这条语句进行优化; 当服务器进程的优化器确定这条查询语句的最佳执行计划后,就会将这条 SQL 语句与执行计划保存到数据高速缓存。</p>
 </blockquote>
-<p>&lt; !–more–&gt;</p>
 </li>
 <li><p><strong>语句执行</strong></p>
 <blockquote>
@@ -891,7 +892,7 @@
         var disqus_config = function () {
           this.page.url = 'https://ysshao.cn/2020/04/11/oracle/';
           this.page.identifier = '2020/04/11/oracle/';
-          this.page.title = 'Oracle优化';
+          this.page.title = 'Oracle优化思路';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://.disqus.com/embed.js';
