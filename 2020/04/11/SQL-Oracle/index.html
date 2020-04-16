@@ -83,18 +83,20 @@
 
 
 
-<meta name="description" content="Oracle优化思路理解SQL执行原理和过程 客户端把语句发给服务器端执行 ​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。  语句解析  查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行">
+<meta name="description" content="SQL优化思路-Oracle篇为什么要重点提及SQL优化？ 关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。 作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。 在工作中发现在数据库方面的一些现象：  开发人员将数据库视为“黑盒子”，开发人员不关心，不重视SQL的执行过程，只关注具体的应用层">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Oracle优化思路">
-<meta property="og:url" content="https://ysshao.cn/2020/04/11/oracle/index.html">
+<meta property="og:title" content="你真的了解“SQL”吗？">
+<meta property="og:url" content="https://ysshao.cn/2020/04/11/SQL-Oracle/index.html">
 <meta property="og:site_name" content="Ysshao&#39;Blog">
-<meta property="og:description" content="Oracle优化思路理解SQL执行原理和过程 客户端把语句发给服务器端执行 ​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。  语句解析  查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行">
+<meta property="og:description" content="SQL优化思路-Oracle篇为什么要重点提及SQL优化？ 关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。 作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。 在工作中发现在数据库方面的一些现象：  开发人员将数据库视为“黑盒子”，开发人员不关心，不重视SQL的执行过程，只关注具体的应用层">
+<meta property="og:image" content="https://ysshao.cn/.cn//sqlyh.png">
 <meta property="article:published_time" content="2020-04-11T15:50:30.000Z">
-<meta property="article:modified_time" content="2020-04-16T01:01:13.875Z">
+<meta property="article:modified_time" content="2020-04-16T10:13:56.582Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Oracle">
 <meta property="article:tag" content="SQL">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ysshao.cn/.cn//sqlyh.png">
 
 
 
@@ -124,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="https://ysshao.cn/2020/04/11/oracle/"/>
+  <link rel="canonical" href="https://ysshao.cn/2020/04/11/SQL-Oracle/"/>
 
 
 
 
 
-  <title>Oracle优化思路 | Ysshao'Blog</title>
+  <title>你真的了解“SQL”吗？ | Ysshao'Blog</title>
   
 
 
@@ -312,7 +314,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://ysshao.cn/2020/04/11/oracle/">
+    <link itemprop="mainEntityOfPage" href="https://ysshao.cn/2020/04/11/SQL-Oracle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ysshao">
@@ -329,7 +331,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Oracle优化思路</h1>
+          <h1 class="post-title" itemprop="name headline">你真的了解“SQL”吗？</h1>
         
 
         <div class="post-meta">
@@ -382,9 +384,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2020/04/11/oracle/#comments" itemprop="discussionUrl">
+                <a href="/2020/04/11/SQL-Oracle/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2020/04/11/oracle/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2020/04/11/SQL-Oracle/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -392,7 +394,7 @@
 
           
           
-             <span id="/2020/04/11/oracle/" class="leancloud_visitors" data-flag-title="Oracle优化思路">
+             <span id="/2020/04/11/SQL-Oracle/" class="leancloud_visitors" data-flag-title="你真的了解“SQL”吗？">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -417,7 +419,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.3k
+                  2.2k
                 </span>
               
 
@@ -433,7 +435,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  4
+                  7
                 </span>
               
             </div>
@@ -454,18 +456,97 @@
       
 
       
-        <h1 id="Oracle优化思路"><a href="#Oracle优化思路" class="headerlink" title="Oracle优化思路"></a>Oracle优化思路</h1><h2 id="理解SQL执行原理和过程"><a href="#理解SQL执行原理和过程" class="headerlink" title="理解SQL执行原理和过程"></a>理解SQL执行原理和过程</h2><ul>
+        <h1 id="SQL优化思路-Oracle篇"><a href="#SQL优化思路-Oracle篇" class="headerlink" title="SQL优化思路-Oracle篇"></a>SQL优化思路-Oracle篇</h1><p><strong>为什么要重点提及SQL优化？</strong></p>
+<p>关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。</p>
+<p>作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。</p>
+<p><code>在工作中发现在数据库方面的一些现象</code>：</p>
+<ol>
+<li><p><strong>开发人员将数据库视为“黑盒子”</strong>，开发人员不关心，不重视SQL的执行过程，只关注具体的应用层体现。</p>
+</li>
+<li><p><strong>对SQL质量的重视程度不够</strong>,我们在日常项目中通常是不重视SQL的执行,没有经过大数量的反复推敲。</p>
+<p>通常是直到项目上线，甚至到出现性能问题时，才会重点关注分析。或者是有DBA介人处理。这种救火模式，往往效果不好，即使有了解决方案，其代价、成本也必然是巨大的。</p>
+</li>
+<li><p><strong>开发人员想提高，但是无从下手</strong>。有部分开发人员意识到了SQL语句的重要性，但是无从下手。可能只是靠自我的日常积累。导致我们想提高缺困难重重！</p>
+</li>
+</ol>
+<p><code>场景误区</code>：</p>
+<ol>
+<li><p><strong>关系数据库已死</strong>，近些年来，随着NoSQL的发展盛兴和推广，有一种观点就是关系数据库必将死亡，NoSQL将取而代之！随之而来的就是SQL优化没有必要，NoSQL作为一种新兴的技术，的确有其鲜明的特点，也适用于一些场合。但我们要看到，很多需要ACID的场景下，传统数据库仍然是不二选择，不可取代。</p>
+</li>
+<li><p><strong>SQL优化很简单</strong>,有些人认为，SQL优化很简单，部分人观点SQL优化不就是加几个索引嘛，有啥难的！</p>
+<p>但其不是唯一的。且很多情况下，加了索引可能导致性能更差。在我们真实的项目中观察到单表存在10多个索引的情况。</p>
+</li>
+<li><p><strong>SQL优化只是DBA的事情</strong>,在我们的开发过程中，只关注自身的业务功能实现而忽略了相应的执行成本。</p>
+<p>最终就导致上线后系统运行缓慢，代码质量不够。客户体验较差等问题。</p>
+</li>
+</ol>
+<h1 id="SQL语句的执行顺序"><a href="#SQL语句的执行顺序" class="headerlink" title="SQL语句的执行顺序"></a>SQL语句的执行顺序</h1><p>正式开始之前，先介绍下Select语句完整的执行顺序</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>语法顺序</th>
+<th>加载顺序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>SELECT[DISTINCT]</td>
+<td>FROM</td>
+</tr>
+<tr>
+<td>2</td>
+<td>FROM</td>
+<td>WHERE</td>
+</tr>
+<tr>
+<td>3</td>
+<td>WHERE</td>
+<td>GROUP BY</td>
+</tr>
+<tr>
+<td>4</td>
+<td>GROUP BY</td>
+<td>HAVING</td>
+</tr>
+<tr>
+<td>5</td>
+<td>HAVING</td>
+<td>SELECT</td>
+</tr>
+<tr>
+<td>6</td>
+<td>UNION</td>
+<td>DISTINCT</td>
+</tr>
+<tr>
+<td>7</td>
+<td>ORDER BY</td>
+<td>UNION</td>
+</tr>
+<tr>
+<td>8</td>
+<td></td>
+<td>ORDER BY</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>SQL Select语句完整的执行顺序</strong><br>1、from子句组装来自不同数据源的数据；<br>2、where子句基于指定的条件对记录行进行筛选；<br>3、group by子句将数据划分为多个分组；<br>4、使用聚集函数进行计算；<br>5、使用having子句筛选分组；<br>6、计算所有的表达式；<br>7、使用order by对结果集进行排序。<br>8、select 集合输出。</p>
+</blockquote>
+<h2 id="理解SQL执行原理和过程"><a href="#理解SQL执行原理和过程" class="headerlink" title="理解SQL执行原理和过程"></a>理解SQL执行原理和过程</h2><ul>
 <li><p><strong>客户端把语句发给服务器端执行</strong></p>
 <p>​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。</p>
 </li>
 <li><p><strong>语句解析</strong></p>
 <blockquote>
-<p>查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行计划。如果在数据高速缓存中,则服务器进程就会直接执行这个 SQL 语句,省去后续的工作。所以,采用高速数据缓存的话,可以提高 SQL 语句的查询效率。</p>
-<p>语句合法性检查(data dict cache)。当在高速缓存中找不到对应的 SQL 语句时则服务器进程就会开始检查这条语句的合法性。这里主要是对 SQL 语句的语法进行检查,看看其是否合乎语法规则。如果服务器进程认为这条 SQL 语句不符合语法规则的时候,就会把这个错误信息,反馈给客户端。注意:此阶段不会对 SQL 语句中所包含的表名、列名等等进行 SQL 他只是语法。</p>
-<p>语言含义检查(data dict cache)。若 SQL 语句符合语法上的定义的话,则服务器进程，接下去会对语句中的字段、表等内容进行检查。看看这些字段、表是否在数据库中。</p>
-<p>获得对象解析锁(control structer)。当语法、语义都正确后,系统就会对我们需要查询的对象加锁。这主要是为了保障数据的一致性,防止我们在查询的过程中,其他用户对这个对象的结构发生改变。</p>
-<p>数据访问权限的核对(data dict cache)。当语法、语义通过检查之后,客户端还不一定能够取得数据。服务器进程还会检查,你所连接的用户是否有这个数据访问的权限。</p>
-<p>确定最佳执行计划 。当语句与语法都没有问题,权限也匹配的话,服务器进程还是不会直接对数据库文件进行查询，服务器进程会根据一定的规则,对这条语句进行优化; 当服务器进程的优化器确定这条查询语句的最佳执行计划后,就会将这条 SQL 语句与执行计划保存到数据高速缓存。</p>
+<ol>
+<li>查询高速缓存(library cache)。服务器进程在接到客户端传送过来的 SQL 语句时,不会直接去数据库查询。而是会先在数据库的高速缓存中去查找,是否存在相同语句的执行计划。如果在数据高速缓存中,则服务器进程就会直接执行这个 SQL 语句,省去后续的工作。所以,采用高速数据缓存的话,可以提高 SQL 语句的查询效率。</li>
+<li>语句合法性检查(data dict cache)。当在高速缓存中找不到对应的 SQL 语句时则服务器进程就会开始检查这条语句的合法性。这里主要是对 SQL 语句的语法进行检查,看看其是否合乎语法规则。如果服务器进程认为这条 SQL 语句不符合语法规则的时候,就会把这个错误信息,反馈给客户端。注意:此阶段不会对 SQL 语句中所包含的表名、列名等等进行 SQL 他只是语法。</li>
+<li>语言含义检查(data dict cache)。若 SQL 语句符合语法上的定义的话,则服务器进程，接下去会对语句中的字段、表等内容进行检查。看看这些字段、表是否在数据库中。</li>
+<li>获得对象解析锁(control structer)。当语法、语义都正确后,系统就会对我们需要查询的对象加锁。这主要是为了保障数据的一致性,防止我们在查询的过程中,其他用户对这个对象的结构发生改变。</li>
+<li>数据访问权限的核对(data dict cache)。当语法、语义通过检查之后,客户端还不一定能够取得数据。服务器进程还会检查,你所连接的用户是否有这个数据访问的权限。</li>
+<li>确定最佳执行计划 。当语句与语法都没有问题,权限也匹配的话,服务器进程还是不会直接对数据库文件进行查询，服务器进程会根据一定的规则,对这条语句进行优化; 当服务器进程的优化器确定这条查询语句的最佳执行计划后,就会将这条 SQL 语句与执行计划保存到数据高速缓存。</li>
+</ol>
 </blockquote>
 </li>
 <li><p><strong>语句执行</strong></p>
@@ -504,8 +585,13 @@
 <p>查看SQL只执行过一次的(分析相似的SQL找出硬解析SQL)</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> sql_text <span class="keyword">from</span> v$<span class="keyword">sql</span> <span class="keyword">where</span> EXECUTIONS=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 
-<hr>
-<h2 id="如何写出高性能的SQL"><a href="#如何写出高性能的SQL" class="headerlink" title="如何写出高性能的SQL"></a>如何写出高性能的SQL</h2><h2 id="如何正确使用表分区"><a href="#如何正确使用表分区" class="headerlink" title="如何正确使用表分区"></a>如何正确使用表分区</h2><h2 id="Oracle完成数据导入和导出"><a href="#Oracle完成数据导入和导出" class="headerlink" title="Oracle完成数据导入和导出"></a>Oracle完成数据导入和导出</h2><hr>
+
+
+
+
+<h2 id="SQL优化法则"><a href="#SQL优化法则" class="headerlink" title="SQL优化法则"></a>SQL优化法则</h2><p>常见的优化法则。这里所说的优化法则，其实是指可以从那些角度去考虑SQL优化的问题。可以有很多种方式去看待它。</p>
+<p><img src="/.cn//sqlyh.png" alt></p>
+<h2 id="如何写出高性能的SQL"><a href="#如何写出高性能的SQL" class="headerlink" title="如何写出高性能的SQL"></a>如何写出高性能的SQL</h2><h2 id="如何正确使用表分区"><a href="#如何正确使用表分区" class="headerlink" title="如何正确使用表分区"></a>如何正确使用表分区</h2><h2 id="Oracle完成数据导入和导出"><a href="#Oracle完成数据导入和导出" class="headerlink" title="Oracle完成数据导入和导出"></a>Oracle完成数据导入和导出</h2><p><code>本文章部分内容参考文献：《SQL优化最佳实践》</code></p>
 
       
     </div>
@@ -526,7 +612,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://ysshao.cn/2020/04/11/oracle/" title="Oracle优化思路">https://ysshao.cn/2020/04/11/oracle/</a>
+    <a href="https://ysshao.cn/2020/04/11/SQL-Oracle/" title="你真的了解“SQL”吗？">https://ysshao.cn/2020/04/11/SQL-Oracle/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>
@@ -743,7 +829,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Oracle优化思路"><span class="nav-number">1.</span> <span class="nav-text">Oracle优化思路</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#理解SQL执行原理和过程"><span class="nav-number">1.1.</span> <span class="nav-text">理解SQL执行原理和过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何写出高性能的SQL"><span class="nav-number">1.2.</span> <span class="nav-text">如何写出高性能的SQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何正确使用表分区"><span class="nav-number">1.3.</span> <span class="nav-text">如何正确使用表分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Oracle完成数据导入和导出"><span class="nav-number">1.4.</span> <span class="nav-text">Oracle完成数据导入和导出</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL优化思路-Oracle篇"><span class="nav-number">1.</span> <span class="nav-text">SQL优化思路-Oracle篇</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL语句的执行顺序"><span class="nav-number">2.</span> <span class="nav-text">SQL语句的执行顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#理解SQL执行原理和过程"><span class="nav-number">2.1.</span> <span class="nav-text">理解SQL执行原理和过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL优化法则"><span class="nav-number">2.2.</span> <span class="nav-text">SQL优化法则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何写出高性能的SQL"><span class="nav-number">2.3.</span> <span class="nav-text">如何写出高性能的SQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何正确使用表分区"><span class="nav-number">2.4.</span> <span class="nav-text">如何正确使用表分区</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Oracle完成数据导入和导出"><span class="nav-number">2.5.</span> <span class="nav-text">Oracle完成数据导入和导出</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -1202,9 +1288,9 @@ if(canvas.getContext){
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'https://ysshao.cn/2020/04/11/oracle/';
-          this.page.identifier = '2020/04/11/oracle/';
-          this.page.title = 'Oracle优化思路';
+          this.page.url = 'https://ysshao.cn/2020/04/11/SQL-Oracle/';
+          this.page.identifier = '2020/04/11/SQL-Oracle/';
+          this.page.title = '你真的了解“SQL”吗？';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://.disqus.com/embed.js';
