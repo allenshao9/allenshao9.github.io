@@ -3,8 +3,7 @@
   <entry>
     <title>Oracle优化思路</title>
     <url>/2020/04/11/oracle/</url>
-    <content><![CDATA[<h1 id="Oracle优化思路"><a href="#Oracle优化思路" class="headerlink" title="Oracle优化思路"></a>Oracle优化思路</h1><p><img src="/.cn//image-oracle.png" alt></p>
-<h2 id="理解SQL执行原理和过程"><a href="#理解SQL执行原理和过程" class="headerlink" title="理解SQL执行原理和过程"></a>理解SQL执行原理和过程</h2><ul>
+    <content><![CDATA[<h1 id="Oracle优化思路"><a href="#Oracle优化思路" class="headerlink" title="Oracle优化思路"></a>Oracle优化思路</h1><h2 id="理解SQL执行原理和过程"><a href="#理解SQL执行原理和过程" class="headerlink" title="理解SQL执行原理和过程"></a>理解SQL执行原理和过程</h2><ul>
 <li><p><strong>客户端把语句发给服务器端执行</strong></p>
 <p>​        当我们在客户端执行 select 语句时,客户端会把这条 SQL 语句发送给服务器端,让服务器端的进程来处理这语句。</p>
 </li>
@@ -62,7 +61,7 @@
       </categories>
       <tags>
         <tag>Oracle</tag>
-        <tag>Sql</tag>
+        <tag>SQL</tag>
       </tags>
   </entry>
 </search>

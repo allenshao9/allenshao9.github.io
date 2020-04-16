@@ -1868,7 +1868,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #aab9dd;
+  background: #ff9888;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -3196,4 +3196,15 @@ li.recent_posts_li {
   .pagination {
     margin: 8px 0 0;
   }
+}
+.post {
+  margin-top: 6px;
+  margin-bottom: 60px;
+  padding: 25px;
+  background: rgba(255,255,255,0.9) none repeat scroll !important;
+  -webkit-box-shadow: 0 0 5px rgba(202,203,203,0.5);
+  -moz-box-shadow: 0 0 5px rgba(202,203,204,0.5);
+}
+.headband {
+  display: none;
 }
