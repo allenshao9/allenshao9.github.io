@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>你真的了解“SQL”吗？</title>
-    <url>/2020/04/11/SQL-Oracle/</url>
+    <url>/Oracle/SQL-Oracle/</url>
     <content><![CDATA[<h1 id="SQL优化思路-Oracle篇"><a href="#SQL优化思路-Oracle篇" class="headerlink" title="SQL优化思路-Oracle篇"></a>SQL优化思路-Oracle篇</h1><p><strong>为什么要重点提及SQL优化？</strong></p>
 <p>关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。</p>
 <p>作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。</p>
@@ -27,7 +27,7 @@
 <p>最终就导致上线后系统运行缓慢，代码质量不够。客户体验较差等问题。</p>
 </li>
 </ol>
-<h1 id="SQL语句的执行顺序"><a href="#SQL语句的执行顺序" class="headerlink" title="SQL语句的执行顺序"></a>SQL语句的执行顺序</h1><p>正式开始之前，先介绍下Select语句完整的执行顺序</p>
+<h2 id="SQL语句的执行顺序"><a href="#SQL语句的执行顺序" class="headerlink" title="SQL语句的执行顺序"></a>SQL语句的执行顺序</h2><p>正式开始之前，先介绍下Select语句完整的执行顺序</p>
 <table>
 <thead>
 <tr>
@@ -92,35 +92,61 @@
 <li>语言含义检查(data dict cache)。若 SQL 语句符合语法上的定义的话,则服务器进程，接下去会对语句中的字段、表等内容进行检查。看看这些字段、表是否在数据库中。</li>
 <li>获得对象解析锁(control structer)。当语法、语义都正确后,系统就会对我们需要查询的对象加锁。这主要是为了保障数据的一致性,防止我们在查询的过程中,其他用户对这个对象的结构发生改变。</li>
 <li>数据访问权限的核对(data dict cache)。当语法、语义通过检查之后,客户端还不一定能够取得数据。服务器进程还会检查,你所连接的用户是否有这个数据访问的权限。</li>
-<li>确定最佳执行计划 。当语句与语法都没有问题,权限也匹配的话,服务器进程还是不会直接对数据库文件进行查询，服务器进程会根据一定的规则,对这条语句进行优化; 当服务器进程的优化器确定这条查询语句的最佳执行计划后,就会将这条 SQL 语句与执行计划保存到数据高速缓存。</li>
+<li><strong>确定最佳执行计划</strong> 。当语句与语法都没有问题,权限也匹配的话,服务器进程还是不会直接对数据库文件进行查询，服务器进程会根据一定的规则,对这条语句进行优化; 当服务器进程的优化器确定这条查询语句的最佳执行计划后,就会将这条 SQL 语句与执行计划保存到数据高速缓存。</li>
 </ol>
 </blockquote>
 </li>
+<li><p><strong>绑定变量</strong></p>
+<p>如果SQL语句中使用了绑定变量，扫描绑定变量的声明，给绑定变量赋值，将变量值带入执行计划。若在解析的第一个步骤，SQL在高速缓冲中存在，则直接跳到该步骤。</p>
+</li>
 <li><p><strong>语句执行</strong></p>
 <blockquote>
+<p>语句解析只是对 SQL 语句的语法进行解析,以确保服务器能够知道这条语句到底表达的是什么意思。等到语句解析完成之后,数据库服务器进程才会真正的执行这条 SQL 语句。</p>
+<p><strong>对于SELECT语句：</strong></p>
 <ol>
-<li>语句解析只是对 SQL 语句的语法进行解析,以确保服务器能够知道这条语句到底表达 的是什么意思。等到语句解析完成之后,数据库服务器进程才会真正的执行这条 SQL 语句。</li>
-<li>若被选择行所在的数据块已经被读取到数据缓冲区的话,则服务器进程会直接把这个数据传递给客户端,而不是从数据库文件中去查询数据。</li>
-<li>若数据不在缓冲区中,则服务器进程将从数据库文件中查询相关数据,并把这些数据放入到数据缓冲区中(buffer cache)</li>
+<li><p>若被选择行所在的数据块已经被读取到数据缓冲区的话,则服务器进程会直接把这个数据传递给客户端,而不是从数据库文件中去查询数据。</p>
+</li>
+<li><p>若数据不在缓冲区中,则服务器进程将从数据库文件中查询相关数据,并把这些数据放入到数据缓冲区中(buffer cache)</p>
+</li>
+</ol>
+<p><strong>对于DML语句（insert、update、delete）</strong></p>
+<ol>
+<li>检查所需的数据库是否已经被读取到缓冲区缓存中。如果已经存在缓冲区缓存，则直接执行步骤3；</li>
+<li>若所需的数据库并不在缓冲区缓存中，则服务器将数据块从数据文件读取到缓冲区缓存中.</li>
+<li>对想要修改的表取得的数据行锁定，之后对所需要修改的数据行取得独占锁；</li>
+<li>将数据的Redo记录复制到redo log buffer；</li>
+<li>产生数据修改的undo数据；</li>
+<li>修改数据，其实是修改的缓存区中的数据（db buffer；）；</li>
+<li>后台dbwr将修改写入数据文件；</li>
 </ol>
 </blockquote>
 </li>
 <li><p><strong>提取数据</strong></p>
 <p>​        当语句执行完成之后,查询到的数据还是在服务器进程中,还没有被传送到客户端的用户进程。所以,在服务器端的进程中,有一个专门负责数据提取的一段代码。他的作用就是把查询到的数据结果返回给用户端进程,从而完成整个查询动作。</p>
+<p>最终整体的SQL运行流程如下：</p>
+<hr>
+<img src="/Oracle/SQL-Oracle/sqlzxgc.png" alt="SQL执行过程" style="zoom:50%;">
+
 </li>
-<li><p><strong>SQL语句的解析方式</strong></p>
+</ul>
+<h2 id="如何写出高性能的SQL"><a href="#如何写出高性能的SQL" class="headerlink" title="如何写出高性能的SQL"></a>如何写出高性能的SQL</h2><p><strong>SQL语句的解析方式</strong></p>
 <blockquote>
+<p>根据前面我们讲到了高速缓存区，可以知道通过SQL文本计算的哈希值无法在缓存区找到，则开启硬解析的一个过程。优化器最终产生一个最优的执行计划。</p>
+<p>总体分析：</p>
+<ul>
+<li>硬解析即整个<em>SQL</em>语句的执行需要完完全全的解析，生成执行计划。那么此过程就非常消耗CPU和内存资源。</li>
+<li>软解析省略了以上过程。</li>
+</ul>
 <p>SQL语句的解析有软解析soft parse与硬解析hard parse，以下是5个步骤：</p>
 <p>1：语法是否合法(sql写法)</p>
 <p>2：语义是否合法(权限，对象是否存在)</p>
-<p>3：检查该sql是否在公享池中存在</p>
+<p>3：检查该sql是否在共享池中存在</p>
 <p>– 如果存在,直接跳过4和5,运行sql. 此时算soft parse</p>
 <p>4：选择执行计划</p>
 <p>5：产生执行计划</p>
 </blockquote>
-</li>
-</ul>
-<p>查看系统中SQL解析的相关内容（parse count (total)=解析总次数、parse count (hard)=硬解析次数）    </p>
+<p>后续我们重点关注SQL的语句解析和执行计划</p>
+<h3 id="减少硬解析"><a href="#减少硬解析" class="headerlink" title="减少硬解析"></a>减少硬解析</h3><p>查看系统中SQL解析的相关内容（parse count (total)=解析总次数、parse count (hard)=硬解析次数）    </p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="keyword">name</span>,<span class="keyword">value</span> <span class="keyword">from</span> v$sysstat <span class="keyword">where</span> <span class="keyword">name</span> <span class="keyword">like</span> <span class="string">'parse%'</span>;</span><br></pre></td></tr></table></figure>
 
 <p>查询软解析率。如果软解析率低于30% ，则硬解析过多。 如果总解析量(parse count total)偏低，这项值可以被忽略</p>
@@ -132,13 +158,16 @@
 <p>查看SQL只执行过一次的(分析相似的SQL找出硬解析SQL)</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> sql_text <span class="keyword">from</span> v$<span class="keyword">sql</span> <span class="keyword">where</span> EXECUTIONS=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 
-
-
-
-
 <h2 id="SQL优化法则"><a href="#SQL优化法则" class="headerlink" title="SQL优化法则"></a>SQL优化法则</h2><p>常见的优化法则。这里所说的优化法则，其实是指可以从那些角度去考虑SQL优化的问题。可以有很多种方式去看待它。</p>
-<p><img src="/.cn//sqlyh.png" alt></p>
-<h2 id="如何写出高性能的SQL"><a href="#如何写出高性能的SQL" class="headerlink" title="如何写出高性能的SQL"></a>如何写出高性能的SQL</h2><h2 id="如何正确使用表分区"><a href="#如何正确使用表分区" class="headerlink" title="如何正确使用表分区"></a>如何正确使用表分区</h2><h2 id="Oracle完成数据导入和导出"><a href="#Oracle完成数据导入和导出" class="headerlink" title="Oracle完成数据导入和导出"></a>Oracle完成数据导入和导出</h2><p><code>本文章部分内容参考文献：《SQL优化最佳实践》</code></p>
+<img src="/Oracle/SQL-Oracle/sqlyh.png" alt="漏斗法则" style="zoom:80%;">
+
+
+
+
+
+
+
+<h2 id="如何正确使用表分区"><a href="#如何正确使用表分区" class="headerlink" title="如何正确使用表分区"></a>如何正确使用表分区</h2><h2 id="Oracle完成数据导入和导出"><a href="#Oracle完成数据导入和导出" class="headerlink" title="Oracle完成数据导入和导出"></a>Oracle完成数据导入和导出</h2><p><code>本文章部分内容参考文献：《SQL优化最佳实践》</code></p>
 ]]></content>
       <categories>
         <category>Oracle</category>
