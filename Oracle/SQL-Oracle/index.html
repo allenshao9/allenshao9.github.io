@@ -83,16 +83,17 @@
 
 
 
-<meta name="description" content="SQL优化思路-Oracle篇为什么要重点提及SQL优化？ 关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。 作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。 在工作中发现在数据库方面的一些现象：  开发人员将数据库视为“黑盒子”，开发人员不关心，不重视SQL的执行过程，只关注具体的应用层">
+<meta name="description" content="SQL优化思路-Oracle篇为什么要重点提及SQL优化？ 关于SQL优化的教程很多，也是结合了各种资料以及书籍进行整理。下面给大家分享一下。 作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。 在工作中发现在数据库方面的一些现象：  开发人员将数据库视为“黑盒子”，开发人员不关心，不重视SQL的执行过程，只关注具体的应">
 <meta property="og:type" content="article">
 <meta property="og:title" content="你真的了解“SQL”吗？">
 <meta property="og:url" content="https://ysshao.cn/Oracle/SQL-Oracle/index.html">
 <meta property="og:site_name" content="Ysshao&#39;Blog">
-<meta property="og:description" content="SQL优化思路-Oracle篇为什么要重点提及SQL优化？ 关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。 作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。 在工作中发现在数据库方面的一些现象：  开发人员将数据库视为“黑盒子”，开发人员不关心，不重视SQL的执行过程，只关注具体的应用层">
+<meta property="og:description" content="SQL优化思路-Oracle篇为什么要重点提及SQL优化？ 关于SQL优化的教程很多，也是结合了各种资料以及书籍进行整理。下面给大家分享一下。 作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。 在工作中发现在数据库方面的一些现象：  开发人员将数据库视为“黑盒子”，开发人员不关心，不重视SQL的执行过程，只关注具体的应">
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlzxgc.png">
+<meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlcb.png">
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlyh.png">
 <meta property="article:published_time" content="2020-04-11T15:50:30.000Z">
-<meta property="article:modified_time" content="2020-04-17T15:31:34.517Z">
+<meta property="article:modified_time" content="2020-04-20T14:40:37.385Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Oracle">
 <meta property="article:tag" content="SQL">
@@ -420,7 +421,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  4.2k
+                  7.5k
                 </span>
               
 
@@ -436,7 +437,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  15
+                  27
                 </span>
               
             </div>
@@ -458,7 +459,7 @@
 
       
         <h1 id="SQL优化思路-Oracle篇"><a href="#SQL优化思路-Oracle篇" class="headerlink" title="SQL优化思路-Oracle篇"></a>SQL优化思路-Oracle篇</h1><p><strong>为什么要重点提及SQL优化？</strong></p>
-<p>关于SQL优化的教程很多，但是比较杂乱。近期整理了一下，写出来跟大家分享一下。</p>
+<p>关于SQL优化的教程很多，也是结合了各种资料以及书籍进行整理。下面给大家分享一下。</p>
 <p>作为程序员经常和数据库打交道的时候还是非常频繁的，掌握住一些Sql的优化技巧还是非常有必要的。下面列出一些常用的SQl优化技巧。</p>
 <p><code>在工作中发现在数据库方面的一些现象</code>：</p>
 <ol>
@@ -721,17 +722,177 @@
 </li>
 </ol>
 </blockquote>
-<h3 id="读懂执行计划"><a href="#读懂执行计划" class="headerlink" title="读懂执行计划"></a>读懂执行计划</h3><p><strong>执行计划的获取</strong></p>
+<h3 id="读懂执行计划"><a href="#读懂执行计划" class="headerlink" title="读懂执行计划"></a>读懂执行计划</h3><p><strong>优化器和成本</strong></p>
+<p>在介绍执行计划之前，首先要介绍的就是优化器和成本，优化器是数据库最核心，也是最复杂的一个模块。</p>
+<p>选择最优的执行计划。优化器选取，算法决定了执行计划的好坏。</p>
+<p>Oracle中优化器是SQL分析和执行的优化工具，它负责生成、制定SQL的执行计划</p>
+<p>优化器要是以下两种:</p>
+<blockquote>
+<p><strong>RBO（Rule-Based Optimization） 基于规则的优化器**</strong></p>
+<ul>
+<li><p>RBO有严格的使用规则，只要按照这套规则去写SQL语句，无论数据表中的内容怎样，也不会影响到</p>
+<p>你的执行计划； </p>
+</li>
+<li><p>RBO一直沿用至ORACLE 9i，从ORACLE 10g开始，RBO已经彻底被抛弃。</p>
+</li>
+</ul>
+<p><strong>CBO（Cost-Based Optimization） 基于代价的优化器</strong></p>
+<ul>
+<li><p>CBO是一种比RBO更加合理、可靠的优化器，在ORACLE 10g中完全取代RBO；</p>
+</li>
+<li><p>CBO通过计算各种可能的执行计划的“代价”，即COST，从中选用COST最低的执行方案作为实际运行          方案；</p>
+</li>
+</ul>
+<p>它依赖数据库对象的统计信息，统计信息的准确与否会影响CBO做出最优的选择，也就是对数据“敏感”。</p>
+<p>这个就涉及到Oracle收集统计信息。比如Oracle 11g1默认启动了统计信息收集的任务</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--查看自动收集任务及状态：</span></span><br><span class="line"><span class="keyword">select</span> client_name,<span class="keyword">status</span> <span class="keyword">from</span> Dba_Autotask_Client <span class="keyword">where</span> client_name=<span class="string">'auto optimizer stats collection'</span>;</span><br><span class="line"><span class="comment">--查看自动收集任务执行时间窗口</span></span><br><span class="line"><span class="keyword">select</span> WINDOW_NAME, WINDOW_NEXT_TIME , WINDOW_ACTIVE,OPTIMIZER_STATS <span class="keyword">from</span> DBA_AUTOTASK_WINDOW_CLIENTS <span class="keyword">order</span> <span class="keyword">by</span> WINDOW_NEXT_TIME ;</span><br></pre></td></tr></table></figure>
+
+<p><strong>优化器相关的Hint</strong></p>
+<p>在整个SQL优化中，除了按系统默认的优化器来执行，还可以使用提示的方式来干预，能够辅助优化器进行更精准的执行。</p>
+<p>主要的Hint包括：</p>
+<blockquote>
+<ul>
+<li><p>ALL_ROWS：它的含义是优化器启用CBO，也就是按照资源消耗量（CPU、I/O等方面）最小来计算执行。</p>
+</li>
+<li><p>FIRST_ROWS(n) ：它的含义是优化器启用CBO,而且在得到目标SQL的执行计划时会选择那些能够以最快速度响应并返回的前N条记录的执行路径。</p>
+<p>注意：如果在Update、delete中使用此hint则会被Oracle忽略。</p>
+</li>
+<li><p>RULE: 它表示对目标SQL启用RBO，不推荐使用。</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>成本</strong></p>
+<p>在SQL优化过程中，成本非常重要，Oracle绝大多数都是使用基于成本的优化器来制定执行计划。</p>
+<p>成本(COST)计算公式：</p>
+<img src="/Oracle/SQL-Oracle/sqlcb.png" style="zoom:50%;">
+
+
+
+<p><strong>什么是执行计划？</strong></p>
+<p>执行计划是SQL优化的基础，数据库执行的SQL是按照一定的顺序、步骤执行的，至于采用什么方式访问数据由优化器决定。一旦优化器决定好一个它认为最高效的方式，后续一系列的方式顺序、步骤就是执行计划。</p>
+<p><strong>执行计划的获取</strong></p>
+<p>方式一：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span>  <span class="keyword">select</span> XXX <span class="keyword">from</span> XXX;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display()); </span><br><span class="line"><span class="comment">--注意只能执行DML语句，不能执行DDL。查看完毕后需要提交或回滚事务</span></span><br><span class="line"><span class="comment">--使用PLSQL Developer连接工具中的F5</span></span><br></pre></td></tr></table></figure>
+
+<p>方式二：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--跟踪信息记录，最常用的方式，在命令行窗口执行</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 显示执行结果、执行计划、统计信息</span></span><br><span class="line"><span class="keyword">set</span> autotrace <span class="keyword">on</span> <span class="keyword">exp</span> <span class="keyword">statistics</span> ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> table_name <span class="keyword">where</span> xxx;</span><br><span class="line"><span class="comment">--显示执行计划、统计信息</span></span><br><span class="line"><span class="keyword">set</span> autotrace <span class="keyword">trace</span> <span class="keyword">exp</span> <span class="keyword">statistics</span> ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> table_name <span class="keyword">where</span> xxx;</span><br><span class="line"><span class="comment">--只显示执行计划</span></span><br><span class="line"><span class="keyword">set</span> autotrace <span class="keyword">trace</span> <span class="keyword">exp</span> ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> table_name <span class="keyword">where</span> xxx;</span><br><span class="line"></span><br><span class="line"><span class="comment">--补充在执行SQL执行，可显示SQL执行时间</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span>;</span><br></pre></td></tr></table></figure>
+
 <p><strong>执行计划的简单解读</strong></p>
-<h3 id="加快SQL的执行速度"><a href="#加快SQL的执行速度" class="headerlink" title="加快SQL的执行速度"></a>加快SQL的执行速度</h3><h2 id="SQL优化法则"><a href="#SQL优化法则" class="headerlink" title="SQL优化法则"></a>SQL优化法则</h2><p>常见的优化法则。这里所说的优化法则，其实是指可以从那些角度去考虑SQL优化的问题。可以有很多种方式去看待它。</p>
+<ul>
+<li><p>执行计划查看顺序</p>
+<p>执行计划的查看规则：（从上往下，从右往左）</p>
+<p>先从开头一直连续往右看，直到看到右边并列的地方；对于不并列的，靠右的先执行；如果看到并列，从上往下看，对于并列的部分，靠上的先执行。</p>
+<p><code>遵循最上最右先执行的原则</code></p>
+</li>
+<li><p>访问路径</p>
+<p>访问路径这个步骤是确定以什么方式访问数据库的。</p>
+<blockquote>
+<p>常见的分类：</p>
+<ul>
+<li><p>表相关的访问路径：</p>
+<p>TABLE ACCESS BY …  即描述的是该动作执行时表访问</p>
+<ul>
+<li><p>TABLE ACCESS FULL（全表扫描）</p>
+<p>Oracle会读取表中所有的行，并检查每一行是否满足SQL语句中的 Where 限制条件；全表扫描时可以使用多块读（即一次I/O读取多块数据块）操作，提升吞吐量；<br>使用建议：数据量太大的表不建议使用全表扫描，除非本身需要取出的数据较多，占到表数据总量的 5% ~ 10% 或以上</p>
+</li>
+<li><p>TABLE ACCESS BY ROWID（通过ROWID的表存取）</p>
+<p>Oracle中存取单行数据最快的方法.</p>
+</li>
+<li><p>TABLE ACCESS BY INDEX SCAN（索引扫描）</p>
+<p>在索引块中，既存储每个索引的键值，也存储具有该键值的行的ROWID。</p>
+<p>所以索引扫描其实分为两步：<br>1.扫描索引得到对应的ROWID<br>2.通过ROWID定位到具体的行读取数据</p>
+</li>
+</ul>
+</li>
+<li><p>索引相关的访问路径</p>
+<p>INDEX….即索引的访问路径</p>
+<p>索引扫描又分五种：</p>
+<ul>
+<li><p>INDEX UNIQUE SCAN（索引唯一扫描）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">针对唯一性索引（UNIQUE INDEX）的扫描，每次至多只返回一条记录； </span><br><span class="line">表中某字段存在 UNIQUE、PRIMARY KEY 约束时</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>INDEX RANGE SCAN（索引范围扫描）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">使用一个索引存取多行数据；</span><br><span class="line">发生索引范围扫描的三种情况：</span><br><span class="line">a、在唯一索引列上使用了范围操作符（如：&gt;   &lt;   &lt;&gt;   &gt;=   &lt;=  	        between）</span><br><span class="line">b、在组合索引上，只使用部分列进行查询（查询时必须包含前导列，否则会走全表    扫描）</span><br><span class="line">c、对非唯一索引列上进行的任何查询。</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>INDEX FULL SCAN（索引全扫描）</p>
+<p>​    进行全索引扫描时，查询出的数据都必须从索引中可以直接得到（注意全索引扫描只有在CBO模式下才有效）</p>
+</li>
+<li><p>INDEX FAST FULL SCAN（索引快速扫描）</p>
+<p>扫描索引中的所有的数据块，与 INDEX FULL SCAN 类似，但是一个显著的区别是它不对查询出的数据进行排序（即数据不是以排序顺序被返回）</p>
+</li>
+<li><p>INDEX SKIP SCAN（索引跳跃扫描）</p>
+<p>前提条件：表有一个复合索引，且在查询时有除了前导列（索引中第一列）外的其他列作为条件，并且优化器模式为CBO时.</p>
+<p>当Oracle发现前导列的唯一值个数很少时，会将每个唯一值都作为常规扫描的入口，在此基础上做一次查找，最后合并这些查询；</p>
+</li>
+</ul>
+</li>
+<li><p>表关联关系的访问路径</p>
+<p>NESTED LOOPS … 描述的是表连接方式</p>
+<ul>
+<li><p>SORT MERGE JOIN（排序-合并连接）</p>
+<p>​    适用的连接方式：&lt;  &lt;= &gt; &gt;= 等。分别会对各表排序，然后合并汇总。</p>
+<p>​    首先对两个表按照关联的字段进行排序，分别从两个表中取出一行数据进行匹配，如果合适放入结果集；不匹配将较小的那行丢掉继续匹配另一个表的下一行，依次处理直到将两表的数据取完。merge join的很大一部分开销花在排序上，也是同等条件下差于hash join的一个主要原因。</p>
+</li>
+<li><p>NESTED LOOPS（嵌套循环）</p>
+<p>嵌套循环是比较通用的连接方式，每扫描外表的一行数据都要在内表中查找与之相匹配的行。一般来讲会通过索引来提升性能。</p>
+<p><strong>嵌套循环的表有驱动顺序，注意选择合适的驱动表。From最后一张表为驱动表</strong></p>
+<p>嵌套循环连接有一个其他连接方式没有的好处是：<strong>可以先返回已经连接的行</strong>，而不必等所有的连接操作处理完才返回数据，这样可以实现快速响应。</p>
+<p>通常情况下，优化器在选择执行计划时，不会考虑表在FROM语句中出现的顺序。优化器依次根据下面的规则来作出选择</p>
+<p>优化器选择执行计划使得内部表为全表扫描的NESTED LOOPS连接尽可能的少；</p>
+<p>如果采用上面的条件出现了平局的情况，则优化器选择尽可能少出现SORT MERGE操作的执行计划；</p>
+<p>如果仍然出现平局的情况，则优化器将选择表访问路径中排名最高的表作为驱动表；</p>
+<p>如果这时仍然是平局，则优化器会把FROM语句中最后出现的表最为驱动表。</p>
+</li>
+<li><p>HASH JOIN（哈希连接）</p>
+<p>hash-join就算讲两表中的小表（称S）作为hash表，然后去扫描另一个表(称M)的每一行数据，用得出来的行数据根据连接条件去映射建立的hash表，hash表是放在内存中的，这样可以很快的得到对应的S表与M表相匹配的行。</p>
+</li>
+<li><p>CARTESIAN PRODUCT（笛卡尔积）</p>
+<p>通常由编写代码疏漏造成。</p>
+</li>
+</ul>
+<p>注：　　</p>
+<ul>
+<li>对于结果集很大的情况，merge-join需要对其排序效率并不会很高，而nested loop join是一种嵌套循环的查询方式无疑更不适合大数据集的连接，而hash-join正是为处理这种棘手的查询方式而生，尤其是对于一个大表和一个小表的情况，基本上只需要将大小表扫描一遍就可以得出最终的结果集。</li>
+</ul>
+</li>
+<li><p>不过hash-join只适用于等值连接，对于&gt;, &lt;, &lt;=, &gt;=这样的查询连接还是需要nested loop这种通用的连接算法来处理。如果连接key本来就是有序的或者需要排序，那么可能用merge-join的代价会比hash-join更小，此时merge-join会更有优势。</p>
+<ul>
+<li>Oracle一次只能连接两个表。不管查询中有多少个表，Oracle在连接中一次仅能操作两张表</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h3 id="加快SQL的执行速度"><a href="#加快SQL的执行速度" class="headerlink" title="加快SQL的执行速度"></a>加快SQL的执行速度</h3><p><strong>Oracle Hint</strong></p>
+<p>基于代价的优化器是很聪明的，在绝大多数情况下它会选择正确的优化器,但有时候也会选择较差的执行计划，使某个语句的执行变得奇慢无比。此时就需要人为干预。告诉优化器应该怎样执行。</p>
+<p>当遇到SQL执行计划不好的情况，应优先考虑统计信息等问题，而不是直接加Hint了事。如果统计信息无误，应该考虑物理结构是否合理，即没有合适的索引。只有在最后仍然不能SQL按优化的执行计划执行时，才考虑Hint。</p>
+<p>用法：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span>|<span class="keyword">SELECT</span>|<span class="keyword">UPDATE</span>|<span class="keyword">DELETE</span> <span class="comment">/*+ hint  */</span>  ....</span><br><span class="line"><span class="comment">--"+"号表示该注释是一个提示，该加号必须立即跟在"/*"的后面，中间不能有空格。</span></span><br><span class="line"><span class="comment">--hint是下面介绍的具体提示之一，如果包含多个提示，则每个提示之间需要用一个或多个空格隔开。</span></span><br></pre></td></tr></table></figure>
+
+<p>常用Hint:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*+ parallel(table_name n) *&#x2F;</span><br><span class="line"></span><br><span class="line">在sql中指定执行的并行度，这个值将会覆盖自身的并行度和优化器相关的hint</span><br><span class="line">&#x2F;*+ ALL_ROWS *&#x2F; 表明对语句块选择基于开销的优化方法,并获得最佳吞吐量,使资源消耗最小化.</span><br><span class="line">&#x2F;*+ FIRST_ROWS(n) *&#x2F; 表明对语句块选择基于开销的优化方法,并获得最佳响应时间,使资源消耗最小化.</span><br><span class="line">&#x2F;*+ RULE*&#x2F; 表明对语句块选择基于规则的优化方法.</span><br><span class="line"> 和访问路径相关的hint </span><br><span class="line">&#x2F;*+ FULL(TABLE)*&#x2F; 表明对表选择全局扫描的方法.</span><br><span class="line">&#x2F;*+ INDEX(TABLE INDEX_NAME) *&#x2F; 表明对表选择索引的扫描方法.</span><br><span class="line">&#x2F;*+ INDEX_ASC(TABLE INDEX_NAME)*&#x2F; 表明对表选择索引升序的扫描方法.</span><br><span class="line">....</span><br><span class="line">和表相关的所有hint</span><br><span class="line">&#x2F;*+ leading(TABLE) *&#x2F;  指定哪个表为驱动表</span><br><span class="line">&#x2F;*+ ordered *&#x2F;    指定按照from后面的顺序来选择谁做驱动表</span><br><span class="line">&#x2F;*+ use_hash(t,t1) *&#x2F;   表明采用hash方式连接</span><br><span class="line">&#x2F;*+ use_nl(t,t1) *&#x2F;   表明采用nested loop方式连接</span><br><span class="line">&#x2F;*+ use_merge(t,t1) *&#x2F;  表明采用merge方式连接</span><br><span class="line">其他hint</span><br><span class="line">&#x2F;*+ parallel(table_name n) *&#x2F; 在sql中指定执行的并行度，这个值将会覆盖自身的并行度</span><br><span class="line">&#x2F;*+ append *&#x2F;以直接加载的方式将数据加载入库</span><br></pre></td></tr></table></figure>
+
+<p>注意:</p>
+<ul>
+<li>Hint是比较”暴力”的一种解决方式，不是很优雅。需要开发人员手工修改代码。</li>
+<li>Hint不会去适应新的变化。比如数据结构、数据规模发生了重大变化，但使用Hint的语句是感知变化并产生更优的执行计划。</li>
+<li>Hint随着数据库版本的变化，可能会有一些差异、甚至废弃的情况。此时，语句本身是无感知的，必须人工测试并修正。</li>
+</ul>
+<h2 id="SQL优化法则"><a href="#SQL优化法则" class="headerlink" title="SQL优化法则"></a>SQL优化法则</h2><p>常见的优化法则。这里所说的优化法则，其实是指可以从那些角度去考虑SQL优化的问题。可以有很多种方式去看待它。</p>
 <img src="/Oracle/SQL-Oracle/sqlyh.png" alt="漏斗法则" style="zoom:80%;">
 
-
-
-
-
+<p>这个优化法则归纳为5个层次：</p>
+<p>1、 减少数据访问（减少磁盘访问）</p>
+<p>2、 返回更少数据（减少网络传输或磁盘访问）</p>
+<p>3、 减少交互次数（减少网络传输）</p>
+<p>4、 减少服务器CPU开销（减少CPU及内存开销）</p>
+<p>5、 利用更多资源（增加资源）</p>
 <p>持续更新中…… </p>
 <p><code>本文章部分内容参考文献：《SQL优化最佳实践》</code></p>
+<p><code>参考的文章</code>:</p>
+<p>​    </p>
 
       
     </div>
