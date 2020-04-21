@@ -92,8 +92,9 @@
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlzxgc.png">
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlcb.png">
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlyh.png">
+<meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/oracle_yh.png">
 <meta property="article:published_time" content="2020-04-11T15:50:30.000Z">
-<meta property="article:modified_time" content="2020-04-20T14:40:37.385Z">
+<meta property="article:modified_time" content="2020-04-21T10:45:54.408Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Oracle">
 <meta property="article:tag" content="SQL">
@@ -338,6 +339,11 @@
 
         <div class="post-meta">
           <span class="post-time">
+          
+					    <i class="fa fa-thumb-tack"></i>
+					    <font color=green>置顶</font>
+					    <span class="post-meta-divider">|</span>
+					
             
               <span class="post-meta-item-icon">
                 <i class="fa fa-calendar-o"></i>
@@ -421,7 +427,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  7.5k
+                  8.1k
                 </span>
               
 
@@ -437,7 +443,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  27
+                  29
                 </span>
               
             </div>
@@ -780,12 +786,21 @@
 
 <p><strong>执行计划的简单解读</strong></p>
 <ul>
-<li><p>执行计划查看顺序</p>
+<li><p><strong>执行计划查看顺序</strong></p>
 <p>执行计划的查看规则：（从上往下，从右往左）</p>
 <p>先从开头一直连续往右看，直到看到右边并列的地方；对于不并列的，靠右的先执行；如果看到并列，从上往下看，对于并列的部分，靠上的先执行。</p>
 <p><code>遵循最上最右先执行的原则</code></p>
 </li>
-<li><p>访问路径</p>
+<li><p><strong>执行计划字段的解释</strong></p>
+<blockquote>
+<p><strong>ID</strong>: 一个序号，但不是执行的先后顺序。执行的先后根据缩进来判断。</p>
+<p><strong>Operation</strong>： 当前操作的内容。</p>
+<p><strong>Rows</strong>： 当前操作的Cardinality，Oracle估计当前操作的返回结果集。</p>
+<p><strong>Cost（CPU）：</strong>Oracle 计算出来的一个数值（代价），用于说明SQL执行的代价。</p>
+<p><strong>Time</strong>：Oracle 估计当前操作的时间。</p>
+</blockquote>
+</li>
+<li><p><strong>访问路径</strong></p>
 <p>访问路径这个步骤是确定以什么方式访问数据库的。</p>
 <blockquote>
 <p>常见的分类：</p>
@@ -863,8 +878,73 @@
 </li>
 </ul>
 </blockquote>
+<p><strong>统计信息</strong></p>
+<table>
+<thead>
+<tr>
+<th>Statistics</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>recursive calls</td>
+<td>产生的递归sql调用的条数。</td>
+</tr>
+<tr>
+<td>Db block gets:</td>
+<td>从buffer cache中读取的block的数量</td>
+</tr>
+<tr>
+<td>consistent gets</td>
+<td>从buffer cache中读取的undo数据的block的数量</td>
+</tr>
+<tr>
+<td>physical reads</td>
+<td>从磁盘读取的block的数量</td>
+</tr>
+<tr>
+<td>redo size</td>
+<td>DML生成的redo的大小</td>
+</tr>
+<tr>
+<td>bytes sent via SQL*Net to client</td>
+<td>数据库服务器通过SQL*Net向查询客户端发送的查询结果字节数</td>
+</tr>
+<tr>
+<td>bytes received via SQL*Net from client</td>
+<td>通过SQL*Net接受的来自客户端的数据字节数</td>
+</tr>
+<tr>
+<td>SQL*Net roundtrips to/from client</td>
+<td>服务器和客户端来回往返通信的Oracle Net messages条数</td>
+</tr>
+<tr>
+<td>sorts (memory)</td>
+<td>在内存执行的排序量</td>
+</tr>
+<tr>
+<td>sorts (disk)</td>
+<td>在磁盘上执行的排序量</td>
+</tr>
+<tr>
+<td>rows processed</td>
+<td>处理的数据的行数</td>
+</tr>
+</tbody></table>
 </li>
 </ul>
+<p>使用执行计划进行SQL调优</p>
+<ol>
+<li><p>查看总COST，获得资源耗费的总体印象 </p>
+<p>一般而言，执行计划第一行所对应的COST(即成本耗费)值，反应了运行这段SQL的总体估计成本，单看这个总成本没有实际意义，但可以拿它与相同逻辑不同执行计划的SQL的总体COST进行比较，通常COST低的执行计划要好一些。</p>
+</li>
+<li><p>按照从左至右，从上至下的方法，了解执行计划的执行步骤 </p>
+</li>
+<li><p>分析表的访问方式 </p>
+</li>
+<li><p>分析表的连接方式和连接顺序 </p>
+</li>
+</ol>
 <h3 id="加快SQL的执行速度"><a href="#加快SQL的执行速度" class="headerlink" title="加快SQL的执行速度"></a>加快SQL的执行速度</h3><p><strong>Oracle Hint</strong></p>
 <p>基于代价的优化器是很聪明的，在绝大多数情况下它会选择正确的优化器,但有时候也会选择较差的执行计划，使某个语句的执行变得奇慢无比。此时就需要人为干预。告诉优化器应该怎样执行。</p>
 <p>当遇到SQL执行计划不好的情况，应优先考虑统计信息等问题，而不是直接加Hint了事。如果统计信息无误，应该考虑物理结构是否合理，即没有合适的索引。只有在最后仍然不能SQL按优化的执行计划执行时，才考虑Hint。</p>
@@ -873,6 +953,11 @@
 
 <p>常用Hint:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*+ parallel(table_name n) *&#x2F;</span><br><span class="line"></span><br><span class="line">在sql中指定执行的并行度，这个值将会覆盖自身的并行度和优化器相关的hint</span><br><span class="line">&#x2F;*+ ALL_ROWS *&#x2F; 表明对语句块选择基于开销的优化方法,并获得最佳吞吐量,使资源消耗最小化.</span><br><span class="line">&#x2F;*+ FIRST_ROWS(n) *&#x2F; 表明对语句块选择基于开销的优化方法,并获得最佳响应时间,使资源消耗最小化.</span><br><span class="line">&#x2F;*+ RULE*&#x2F; 表明对语句块选择基于规则的优化方法.</span><br><span class="line"> 和访问路径相关的hint </span><br><span class="line">&#x2F;*+ FULL(TABLE)*&#x2F; 表明对表选择全局扫描的方法.</span><br><span class="line">&#x2F;*+ INDEX(TABLE INDEX_NAME) *&#x2F; 表明对表选择索引的扫描方法.</span><br><span class="line">&#x2F;*+ INDEX_ASC(TABLE INDEX_NAME)*&#x2F; 表明对表选择索引升序的扫描方法.</span><br><span class="line">....</span><br><span class="line">和表相关的所有hint</span><br><span class="line">&#x2F;*+ leading(TABLE) *&#x2F;  指定哪个表为驱动表</span><br><span class="line">&#x2F;*+ ordered *&#x2F;    指定按照from后面的顺序来选择谁做驱动表</span><br><span class="line">&#x2F;*+ use_hash(t,t1) *&#x2F;   表明采用hash方式连接</span><br><span class="line">&#x2F;*+ use_nl(t,t1) *&#x2F;   表明采用nested loop方式连接</span><br><span class="line">&#x2F;*+ use_merge(t,t1) *&#x2F;  表明采用merge方式连接</span><br><span class="line">其他hint</span><br><span class="line">&#x2F;*+ parallel(table_name n) *&#x2F; 在sql中指定执行的并行度，这个值将会覆盖自身的并行度</span><br><span class="line">&#x2F;*+ append *&#x2F;以直接加载的方式将数据加载入库</span><br></pre></td></tr></table></figure>
+
+<p>实际案例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--使用FIRST_ROWS(n)临时解决查询特别慢的SQL</span></span><br><span class="line"><span class="keyword">select</span><span class="comment">/*+ FIRST_ROWS(5) */</span> * <span class="keyword">from</span> table_xx ;</span><br><span class="line"><span class="comment">--强制走索引</span></span><br><span class="line"><span class="keyword">Select</span>   <span class="comment">/*+ index(tt  IDX_tt_Serialno) */</span>   * <span class="keyword">from</span>  tablename tt <span class="keyword">order</span> <span class="keyword">by</span> serialno;</span><br><span class="line"><span class="comment">--并行</span></span><br><span class="line"><span class="keyword">insert</span> <span class="comment">/*+ parallel(tt 4) */</span> <span class="keyword">into</span> audit_info_temp2 tt  <span class="keyword">Select</span> * <span class="keyword">from</span> audit_info;</span><br><span class="line"><span class="comment">/*+parallel(t,10) (b,10)*/</span> <span class="comment">--多表并行</span></span><br><span class="line"></span><br><span class="line">Oracle减少redo size的方法</span><br><span class="line">非归档模式下：</span><br><span class="line"><span class="keyword">insert</span> <span class="comment">/*+ append */</span> <span class="keyword">into</span> audit_info_temp1 <span class="keyword">Select</span> * <span class="keyword">from</span> audit_info;</span><br><span class="line">归档模式下：</span><br><span class="line">1、<span class="keyword">alter</span> <span class="keyword">table</span> XXX nologging; </span><br><span class="line">2、 <span class="keyword">insert</span> <span class="comment">/*+append*/</span> <span class="keyword">into</span> table1 <span class="keyword">select</span> * <span class="keyword">from</span> table2</span><br><span class="line"></span><br><span class="line"><span class="comment">--并行</span></span><br><span class="line"><span class="number">1</span> <span class="keyword">Alter</span> <span class="keyword">session</span> <span class="keyword">force</span> <span class="keyword">parallel</span> <span class="keyword">query</span>;</span><br><span class="line">2 <span class="keyword">Alter</span> <span class="keyword">table</span> tab1 <span class="keyword">parallel</span> n;</span><br><span class="line">3 Hist方式</span><br><span class="line"><span class="keyword">Alter</span> <span class="keyword">session</span> <span class="keyword">force</span> <span class="keyword">parallel</span> <span class="keyword">query</span> [<span class="keyword">parallel</span> n];</span><br><span class="line"><span class="keyword">Alter</span> <span class="keyword">session</span> <span class="keyword">force</span> <span class="keyword">parallel</span> dml [<span class="keyword">parallel</span> n];</span><br><span class="line"><span class="keyword">Alter</span> <span class="keyword">table</span> tab1 <span class="keyword">parallel</span> n;</span><br><span class="line"><span class="keyword">Select</span> <span class="comment">/*+parallel(tab n)*/</span> <span class="keyword">from</span> tab;</span><br><span class="line">默认并行度</span><br><span class="line">单实例 = PARALLEL_THREADS_PER_CPU x CPU_COUNT</span><br><span class="line">RAC = PARALLEL_THREADS_PER_CPU x CPU_COUNT x INSTANCE_COUNT</span><br></pre></td></tr></table></figure>
+
+
 
 <p>注意:</p>
 <ul>
@@ -883,16 +968,29 @@
 <h2 id="SQL优化法则"><a href="#SQL优化法则" class="headerlink" title="SQL优化法则"></a>SQL优化法则</h2><p>常见的优化法则。这里所说的优化法则，其实是指可以从那些角度去考虑SQL优化的问题。可以有很多种方式去看待它。</p>
 <img src="/Oracle/SQL-Oracle/sqlyh.png" alt="漏斗法则" style="zoom:80%;">
 
-<p>这个优化法则归纳为5个层次：</p>
-<p>1、 减少数据访问（减少磁盘访问）</p>
-<p>2、 返回更少数据（减少网络传输或磁盘访问）</p>
-<p>3、 减少交互次数（减少网络传输）</p>
-<p>4、 减少服务器CPU开销（减少CPU及内存开销）</p>
-<p>5、 利用更多资源（增加资源）</p>
-<p>持续更新中…… </p>
-<p><code>本文章部分内容参考文献：《SQL优化最佳实践》</code></p>
-<p><code>参考的文章</code>:</p>
-<p>​    </p>
+<p>​    这个优化法则归纳为5个层次：</p>
+<ol>
+<li><p>减少数据访问（减少磁盘访问）</p>
+</li>
+<li><p>返回更少数据（减少网络传输或磁盘访问）</p>
+</li>
+<li><p>减少交互次数（减少网络传输）</p>
+</li>
+<li><p>减少服务器CPU开销（减少CPU及内存开销）</p>
+</li>
+<li><p>利用更多资源（增加资源）</p>
+<p><strong>自低向上</strong></p>
+</li>
+</ol>
+<img src="/Oracle/SQL-Oracle/oracle_yh.png" alt="自低向上" style="zoom:60%;">
+
+<p>关于SQL、Oracle优化需要探索的内容和方式还有很多，本文只是站在程序员开发角度的思路来整理。</p>
+<p>希望能够帮助到各位朋友~</p>
+<hr>
+<p>本文参考的文章:</p>
+<p><a href="https://www.cnblogs.com/zzl-156783663/p/8506488.html" target="_blank" rel="noopener">https://www.cnblogs.com/zzl-156783663/p/8506488.html</a></p>
+<p><a href="http://blog.itpub.net/69918724/viewspace-2651106/" target="_blank" rel="noopener">http://blog.itpub.net/69918724/viewspace-2651106/</a></p>
+<p>本文章部分内容参考文献：《SQL优化最佳实践》</p>
 
       
     </div>
@@ -962,6 +1060,22 @@
       
       
 
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Oracle/Oracle_Tran/" rel="prev" title="Oracle事务&锁">
+                Oracle事务&锁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
 
       
@@ -1049,7 +1163,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1071,7 +1185,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

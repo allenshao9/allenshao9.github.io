@@ -1875,7 +1875,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #e4d552;
+  background: #7a3eac;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -3206,7 +3206,7 @@ li.recent_posts_li {
 }
 .post {
   margin-top: 5px;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
   padding: 25px;
   background: rgba(255,255,255,0.9) none repeat scroll !important;
   -webkit-box-shadow: 0 0 5px rgba(202,203,203,0.5);
