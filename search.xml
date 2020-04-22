@@ -11,8 +11,8 @@
         <category>Oracle</category>
       </categories>
       <tags>
+        <tag>Oracle</tag>
         <tag>锁</tag>
-        <tag>ORACLE</tag>
       </tags>
   </entry>
   <entry>
@@ -550,8 +550,8 @@
         <category>Oracle</category>
       </categories>
       <tags>
-        <tag>SQL优化</tag>
         <tag>Oracle优化</tag>
+        <tag>SQL优化</tag>
       </tags>
   </entry>
 </search>
