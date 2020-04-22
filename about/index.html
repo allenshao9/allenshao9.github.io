@@ -90,7 +90,7 @@
 <meta property="og:site_name" content="Ysshao&#39;Blog">
 <meta property="og:description" content="About Me一名普通的程序员。  Copyright 本博客是主要是分析技术和交流技术，本站内容若非注明【转】均来自本人原创，转载必会注明原文引用地址，若您认为侵犯你的个人知识产权，请联系 我邮箱，我会第一时间和您进行沟通处理。若你喜欢本站内容，欢迎转载，但请注明出处，且勿用于商业用途，谢谢！">
 <meta property="article:published_time" content="2020-04-14T06:44:15.000Z">
-<meta property="article:modified_time" content="2020-04-22T03:14:45.419Z">
+<meta property="article:modified_time" content="2020-04-22T05:34:24.130Z">
 <meta property="article:author" content="ysshao">
 <meta name="twitter:card" content="summary">
 
@@ -340,20 +340,6 @@
 
           
 
-  
-    <div class="comments" id="comments">
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a>
-        </noscript>
-      </div>
-    </div>
-
-  
-
-
-
         </div>
         
           
@@ -494,7 +480,7 @@
       
       </br>
 		<div style="">
-  <canvas id="canvas" style="width:60%;">��ǰ�������֧��canvas������������������</canvas>
+  <canvas id="canvas" style="width:60%;">当前浏览器不支持canvas，请更换浏览器后再试</canvas>
 </div>
 <script>
 (function(){
@@ -639,26 +625,26 @@ var canvas = document.getElementById('canvas');
 
 if(canvas.getContext){
     var cxt = canvas.getContext('2d');
-    //����canvas�Ŀ���
+    //声明canvas的宽高
     var H = 100,W = 700;
     canvas.height = H;
     canvas.width = W;
     cxt.fillStyle = '#f00';
     cxt.fillRect(10,10,50,50);
 
-    //�洢ʱ������
+    //存储时间数据
     var data = [];
-    //�洢�˶���С��
+    //存储运动的小球
     var balls = [];
-    //�������Ӱ뾶
+    //设置粒子半径
     var R = canvas.height/20-1;
     (function(){
         var temp = /(\d)(\d):(\d)(\d):(\d)(\d)/.exec(new Date());
-        //�洢ʱ�����֣���ʮλСʱ����λСʱ��ð�š�ʮλ���ӡ���λ���ӡ�ð�š�ʮλ���ӡ���λ������7���������
+        //存储时间数字，由十位小时、个位小时、冒号、十位分钟、个位分钟、冒号、十位秒钟、个位秒钟这7个数字组成
         data.push(temp[1],temp[2],10,temp[3],temp[4],10,temp[5],temp[6]);
     })();
 
-    /*���ɵ�������*/
+    /*生成点阵数字*/
     function renderDigit(index,num){
         for(var i = 0; i < digit[num].length; i++){
             for(var j = 0; j < digit[num][i].length; j++){
@@ -672,27 +658,27 @@ if(canvas.getContext){
         }
     }
 
-    /*����ʱ��*/
+    /*更新时钟*/
     function updateDigitTime(){
         var changeNumArray = [];
         var temp = /(\d)(\d):(\d)(\d):(\d)(\d)/.exec(new Date());
         var NewData = [];
         NewData.push(temp[1],temp[2],10,temp[3],temp[4],10,temp[5],temp[6]);
         for(var i = data.length-1; i >=0 ; i--){
-            //ʱ�䷢���仯
+            //时间发生变化
             if(NewData[i] !== data[i]){
-                //���仯������ֵ����data�����е������洢��changeNumArray������
+                //将变化的数字值和在data数组中的索引存储在changeNumArray数组中
                 changeNumArray.push(i+'_'+(Number(data[i])+1)%10);
             }
         }
-        //����С��
+        //增加小球
         for(var i = 0; i< changeNumArray.length; i++){
             addBalls.apply(this,changeNumArray[i].split('_'));
         }
         data = NewData.concat();
     }
 
-    /*����С��״̬*/
+    /*更新小球状态*/
     function updateBalls(){
         for(var i = 0; i < balls.length; i++){
             balls[i].stepY += balls[i].disY;
@@ -705,7 +691,7 @@ if(canvas.getContext){
         }
     }
 
-    /*����Ҫ�˶���С��*/
+    /*增加要运动的小球*/
     function addBalls(index,num){
         var numArray = [1,2,3];
         var colorArray =  ["#3BE","#09C","#A6C","#93C","#9C0","#690","#FB3","#F80","#F44","#C00"];
@@ -726,15 +712,15 @@ if(canvas.getContext){
         }
     }
 
-    /*��Ⱦ*/
+    /*渲染*/
     function render(){
-        //���û������ȣ��ﵽ��ջ�����Ч��
+        //重置画布宽度，达到清空画布的效果
         canvas.height = 100;
-        //��Ⱦʱ��
+        //渲染时钟
         for(var i = 0; i < data.length; i++){
             renderDigit(i,data[i]);
         }
-        //��ȾС��
+        //渲染小球
         for(var i = 0; i < balls.length; i++){
             cxt.beginPath();
             cxt.arc(balls[i].x,balls[i].y,R,0,2*Math.PI);
@@ -746,11 +732,11 @@ if(canvas.getContext){
 
     clearInterval(oTimer);
     var oTimer = setInterval(function(){
-        //����ʱ��
+        //更新时钟
         updateDigitTime();
-        //����С��״̬
+        //更新小球状态
         updateBalls();
-        //��Ⱦ
+        //渲染
         render();
     },50);
 }
@@ -939,18 +925,6 @@ if(canvas.getContext){
       <script id="dsq-count-scr" src="https://.disqus.com/count.js" async></script>
     
 
-    
-      <script type="text/javascript">
-        var disqus_config = function () {
-          this.page.url = 'https://ysshao.cn/about/index.html';
-          this.page.identifier = 'about/index.html';
-          this.page.title = '关于';
-        };
-        var d = document, s = d.createElement('script');
-        s.src = 'https://.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', '' + +new Date());
-        (d.head || d.body).appendChild(s);
-      </script>
     
 
   

@@ -27,8 +27,7 @@
 <p>最终就导致上线后系统运行缓慢，代码质量不够。客户体验较差等问题。</p>
 </li>
 </ol>
-<h2 id="SQL语句的执行顺序"><a href="#SQL语句的执行顺序" class="headerlink" title="SQL语句的执行顺序"></a>SQL语句的执行顺序</h2><p>正式开始之前，先介绍下Select语句完整的执行顺序</p>
-<table>
+<h2 id="SQL语句的执行顺序"><a href="#SQL语句的执行顺序" class="headerlink" title="SQL语句的执行顺序"></a>SQL语句的执行顺序</h2><table>
 <thead>
 <tr>
 <th>序号</th>
@@ -526,10 +525,10 @@
 <p>关于SQL、Oracle优化需要探索的内容和方式还有很多，本文只是站在程序员开发角度的思路来整理。</p>
 <p>希望能够帮助到各位朋友~</p>
 <hr>
-<p>本文参考的文章:</p>
-<p><a href="https://www.cnblogs.com/zzl-156783663/p/8506488.html" target="_blank" rel="noopener">https://www.cnblogs.com/zzl-156783663/p/8506488.html</a></p>
-<p><a href="http://blog.itpub.net/69918724/viewspace-2651106/" target="_blank" rel="noopener">http://blog.itpub.net/69918724/viewspace-2651106/</a></p>
 <p>本文章部分内容参考文献：《SQL优化最佳实践》</p>
+<p>本文参考的文章:</p>
+<p>​    <a href="https://www.cnblogs.com/zzl-156783663/p/8506488.html" target="_blank" rel="noopener">https://www.cnblogs.com/zzl-156783663/p/8506488.html</a></p>
+<p>​    <a href="http://blog.itpub.net/69918724/viewspace-2651106/" target="_blank" rel="noopener">http://blog.itpub.net/69918724/viewspace-2651106/</a></p>
 ]]></content>
       <categories>
         <category>Oracle</category>
