@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://ysshao.cn/"/>
-  <updated>2020-04-22T03:36:45.588Z</updated>
+  <updated>2020-04-22T04:16:38.504Z</updated>
   <id>https://ysshao.cn/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://ysshao.cn/Oracle/Oracle_Tran/"/>
     <id>https://ysshao.cn/Oracle/Oracle_Tran/</id>
     <published>2020-04-21T10:11:30.000Z</published>
-    <updated>2020-04-22T03:36:45.588Z</updated>
+    <updated>2020-04-22T04:16:38.504Z</updated>
     
     <content type="html"><![CDATA[<h1 id="Oracle事务-amp-锁"><a href="#Oracle事务-amp-锁" class="headerlink" title="Oracle事务&amp;锁"></a>Oracle事务&amp;锁</h1><h2 id="事务特性"><a href="#事务特性" class="headerlink" title="事务特性"></a>事务特性</h2><p>在关系型数据库（BD2,Oracle,Sybase,Informix和Sql Server）最小的恢复和交易单位为一个事务，事务具有ACID（原子性，一致性，隔离性，永久性）特征。关系数据库为了确保并发用户在存取同一数据库对象的正确性（即无脏读，无丢失更新，可重复读，无幻读），数据库中引入了锁机制。基本的锁类型：共享锁S和排它锁X。</p><h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><h2 id="Oracle锁机制"><a href="#Oracle锁机制" class="headerlink" title="Oracle锁机制"></a>Oracle锁机制</h2><p>准备更新中…… </p><p>​    </p>]]></content>
     
@@ -40,7 +40,7 @@
     
       <category term="Oracle" scheme="https://ysshao.cn/tags/Oracle/"/>
     
-      <category term="锁" scheme="https://ysshao.cn/tags/%E9%94%81/"/>
+      <category term="事务&amp;锁" scheme="https://ysshao.cn/tags/%E4%BA%8B%E5%8A%A1-%E9%94%81/"/>
     
   </entry>
   
