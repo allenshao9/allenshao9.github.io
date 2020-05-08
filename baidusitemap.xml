@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://ysshao.cn/Oracle/SQL/Oracle_SQL_optimization/</loc>
+    <lastmod>2020-05-08</lastmod>
+  </url>  <url>
     <loc>https://ysshao.cn/Oracle/SQL-Oracle/</loc>
-    <lastmod>2020-04-23</lastmod>
+    <lastmod>2020-05-08</lastmod>
   </url>  <url>
     <loc>https://ysshao.cn/Oracle/Oracle_Tran/</loc>
     <lastmod>2020-04-22</lastmod>
