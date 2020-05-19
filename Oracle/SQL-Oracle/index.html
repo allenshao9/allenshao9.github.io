@@ -94,7 +94,7 @@
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlyh.png">
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/oracle_yh.png">
 <meta property="article:published_time" content="2020-04-11T15:50:30.000Z">
-<meta property="article:modified_time" content="2020-05-19T09:18:03.434Z">
+<meta property="article:modified_time" content="2020-05-19T10:31:20.630Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Oracle">
 <meta property="article:tag" content="SQL优化">
@@ -972,7 +972,7 @@
 <blockquote>
 <p>并行处理的机制实际上就是把一个要扫描的数据集分成很多小数据集，Oracle会启动几个并行服务进程同时处理这些小数据集，最后将这些结果汇总，作为最终的处理结果返回给用户。<br>使用并行方式，不论是创建表，修改表，创建索引，重建索引，他们的机制都是一样的，那就是Oracle 给每个并行服务进程分配一块空间，每个进程在自己的空间里处理数据，最后将处理完毕的数据汇总，完成SQL的操作。</p>
 </blockquote>
-<p>*<em>并行查询 *</em></p>
+<p><strong>并行查询</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--查询当前会话是否开启并行查询  并行查询是默认开启的;</span></span><br><span class="line"><span class="keyword">Select</span> PQ_STATUS <span class="keyword">from</span> v$<span class="keyword">session</span> <span class="keyword">where</span> <span class="keyword">sid</span>=sys_context(<span class="string">'userenv'</span>,<span class="string">'sid'</span>);</span><br><span class="line"><span class="comment">--开启并行查询</span></span><br><span class="line"><span class="keyword">Alter</span> <span class="keyword">session</span> <span class="keyword">enable</span> <span class="keyword">parallel</span> <span class="keyword">query</span>;</span><br><span class="line"><span class="comment">--设置表级的并行数量  一般不建议此方式</span></span><br><span class="line"><span class="keyword">Alter</span> <span class="keyword">table</span> tab1 <span class="keyword">parallel</span> n;<span class="comment">-- 默认为1  不指定为DEFAULT</span></span><br><span class="line"><span class="comment">--Hint方式  建议使用</span></span><br><span class="line"><span class="keyword">Select</span> <span class="comment">/*+parallel(tab n)*/</span> <span class="keyword">from</span> tab;</span><br><span class="line"><span class="keyword">Select</span> <span class="comment">/*+parallel(tab,n)*/</span> <span class="keyword">from</span> tab;</span><br></pre></td></tr></table></figure>
 
 <p><strong>并行DML</strong></p>
