@@ -94,7 +94,7 @@
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/sqlyh.png">
 <meta property="og:image" content="https://ysshao.cn/Oracle/SQL-Oracle/oracle_yh.png">
 <meta property="article:published_time" content="2020-04-11T15:50:30.000Z">
-<meta property="article:modified_time" content="2020-05-19T10:31:20.630Z">
+<meta property="article:modified_time" content="2020-06-06T07:07:01.903Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Oracle">
 <meta property="article:tag" content="SQL优化">
@@ -603,7 +603,7 @@
 </blockquote>
 <p>后续我们重点关注SQL的语句解析和执行计划</p>
 <h3 id="减少硬解析"><a href="#减少硬解析" class="headerlink" title="减少硬解析"></a>减少硬解析</h3><p>观察一下SQL的执行的执行过程</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span> <span class="keyword">from</span> dual; </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span>  <span class="keyword">from</span> dual;</span><br><span class="line"><span class="keyword">Select</span> <span class="keyword">sysdate</span> <span class="keyword">From</span> Dual;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">*对于以上SQL,站在我们开发角度认为他们是相同，但是数据库优化器认为是不同的。</span></span><br><span class="line"><span class="comment">*查询v$sql试图观察实际情况</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">SELECT</span> SQL_TEXT,SQL_ID, FIRST_LOAD_TIME <span class="keyword">FROM</span> V$<span class="keyword">SQL</span>  </span><br><span class="line"><span class="keyword">WHERE</span> SQL_TEXT <span class="keyword">LIKE</span> <span class="string">'%SYSDATE%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> FIRST_LOAD_TIME  <span class="keyword">DESC</span> ;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span> <span class="keyword">from</span> dual; </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span>  <span class="keyword">from</span> dual;</span><br><span class="line"><span class="keyword">Select</span> <span class="keyword">sysdate</span> <span class="keyword">From</span> Dual;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">*对于以上SQL,站在我们开发角度认为他们是相同，但是数据库优化器认为是不同的。</span></span><br><span class="line"><span class="comment">*查询v$sql试图观察实际情况</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">SELECT</span> SQL_TEXT,SQL_ID, FIRST_LOAD_TIME,EXECUTIONS <span class="keyword">FROM</span> V$<span class="keyword">SQL</span>  </span><br><span class="line"><span class="keyword">WHERE</span> SQL_TEXT <span class="keyword">LIKE</span> <span class="string">'% sysdate%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> FIRST_LOAD_TIME  <span class="keyword">DESC</span> ;</span><br></pre></td></tr></table></figure>
 
 <p>通常我们可以使用一下这些方式排查硬解析</p>
 <ul>
@@ -742,7 +742,7 @@
 <ul>
 <li><p>CBO是一种比RBO更加合理、可靠的优化器，在ORACLE 10g中完全取代RBO；</p>
 </li>
-<li><p>CBO通过计算各种可能的执行计划的“代价”，即COST，从中选用COST最低的执行方案作为实际运行          方案；</p>
+<li><p>CBO通过计算各种可能的执行计划的“代价”，即COST，从中选用COST最低的执行方案作为实际运行方案；</p>
 </li>
 </ul>
 <p>它依赖数据库对象的统计信息，统计信息的准确与否会影响CBO做出最优的选择，也就是对数据“敏感”。</p>
@@ -1195,7 +1195,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1206,7 +1206,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1217,7 +1217,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

@@ -1,138 +1,571 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>SQL性能优化案例</title>
-    <url>/Oracle/SQL/Oracle_SQL_optimization/</url>
-    <content><![CDATA[<h1 id="SQL性能优化案例篇"><a href="#SQL性能优化案例篇" class="headerlink" title="SQL性能优化案例篇"></a>SQL性能优化案例篇</h1><h2 id="学会辨别虚假信息"><a href="#学会辨别虚假信息" class="headerlink" title="学会辨别虚假信息"></a>学会辨别虚假信息</h2><p>在日常生活中，我们经常遇到有人说exits比in快，count(1)执行比count(*)快，但事实是真的这样吗？我们自己去进行过实践吗？</p>
-<h3 id="in与exist之争"><a href="#in与exist之争" class="headerlink" title="in与exist之争"></a>in与exist之争</h3><p> 首先创建测试表：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> emp <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> dept <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> emp <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> scott.emp;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> dept <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> scott.dept;</span><br></pre></td></tr></table></figure>
+    <title>Linux性能分析工具合集</title>
+    <url>/Linux/Linux_performance/</url>
+    <content><![CDATA[<h1 id="Linux性能分析工具合集"><a href="#Linux性能分析工具合集" class="headerlink" title="Linux性能分析工具合集"></a>Linux性能分析工具合集</h1><h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>有时候会遇到一些疑难杂症，并且监控插件并不能一眼立马发现问题的根源。这时候就需要登录服务器进一步深入分析问题的根源。那么分析问题需要有一定的技术经验积累，并且有些问题涉及到的领域非常广，才能定位到问题。所以，分析问题和踩坑是非常锻炼一个人的成长和提升自我能力。如果我们有一套好的分析工具，那将是事半功倍，能够帮助大家快速定位问题，节省大家很多时间做更深入的事情。</p>
+<h2 id="2-说明"><a href="#2-说明" class="headerlink" title="2. 说明"></a>2. 说明</h2><p>本篇文章主要介绍各种问题定位的工具以及会结合案例分析问题。</p>
+<h2 id="3-分析问题的方法论"><a href="#3-分析问题的方法论" class="headerlink" title="3. 分析问题的方法论"></a>3. 分析问题的方法论</h2><p>套用5W2H方法，可以提出性能分析的几个问题</p>
+<ul>
+<li>What-现象是什么样的</li>
+<li>When-什么时候发生</li>
+<li>Why-为什么会发生</li>
+<li>Where-哪个地方发生的问题</li>
+<li>How much-耗费了多少资源</li>
+<li>How to do-怎么解决问题</li>
+</ul>
+<h2 id="4-性能分析工具合集"><a href="#4-性能分析工具合集" class="headerlink" title="4.性能分析工具合集"></a>4.性能分析工具合集</h2><img src="/Linux/Linux_performance/linux_xn.png" alt="img" style="zoom:60%;">
 
-<p> 在Oracle 11g中执行并查看执行计划：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> dept <span class="keyword">where</span> deptno <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="keyword">select</span> deptno <span class="keyword">from</span> emp ) ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> dept <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> ( <span class="keyword">select</span> deptno <span class="keyword">from</span> emp <span class="keyword">where</span>     emp.deptno=dept.deptno) ;</span><br></pre></td></tr></table></figure>
+<h3 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h3><p>针对应用程序，我们通常关注的是内核CPU调度器功能和性能。</p>
+<p>线程的状态分析主要是分析线程的时间用在什么地方，而线程状态的分类一般分为：</p>
+<p>a. on-CPU：执行中，执行中的时间通常又分为用户态时间user和系统态时间sys。<br>        b. off-CPU：等待下一轮上CPU，或者等待I/O、锁、换页等等，其状态可以细分为可执行、匿名换页、睡        眠、锁、空闲等状态。</p>
+<h4 id="分析工具"><a href="#分析工具" class="headerlink" title="分析工具"></a><strong>分析工具</strong></h4><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>uptime/w</td>
+<td>查看服务器运行时间、平均负载</td>
+</tr>
+<tr>
+<td>top</td>
+<td>监控每个进程的CPU用量分解</td>
+</tr>
+<tr>
+<td>vmstat</td>
+<td>系统的CPU平均负载情况</td>
+</tr>
+<tr>
+<td>mpstat</td>
+<td>查看多核CPU信息</td>
+</tr>
+<tr>
+<td>sar -u</td>
+<td>查看CPU过去或未来时点CPU利用率</td>
+</tr>
+<tr>
+<td>pidstat</td>
+<td>查看每个进程的用量分解</td>
+</tr>
+</tbody></table>
+<h4 id="uptime"><a href="#uptime" class="headerlink" title="uptime"></a>uptime</h4><p>uptime 命令可以用来查看服务器已经运行了多久，当前登录的用户有多少，以及服务器在过去的1分钟、5分钟、15分钟的系统平均负载值</p>
+<img src="/Linux/Linux_performance/image-20200604180851790.png" alt="image-20200604180851790" style="zoom:95%;">
 
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; set autotrace traceonly;</span><br><span class="line">SQL&gt; select * from dept where deptno NOT IN ( select deptno from emp ) ;</span><br></pre></td></tr></table></figure>
+<p>第一项是当前时间，up 表示系统正在运行，6:47是系统启动的总时间，最后是系统的负载load信息</p>
+<p>w 同上，增加了具体登陆了那些用户及登陆时间。</p>
+<h4 id="top"><a href="#top" class="headerlink" title="top"></a>top</h4><p>常用来监控<a href="http://lib.csdn.net/base/linux" target="_blank" rel="noopener">Linux</a>的系统状况，比如cpu、内存的使用，显示系统上正在运行的进程。</p>
+<img src="/Linux/Linux_performance/image-20200604181133355.png" alt="image-20200604181133355" style="zoom:76%;">
 
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; set autotrace traceonly</span><br><span class="line">SQL&gt; select * from dept where deptno NOT IN ( select deptno from emp where deptno is not null) and deptno is not null;</span><br></pre></td></tr></table></figure>
-
-<p>我们发现两个语句的效率是一样的，查看执行计划也是一样的。原来oracle在11g中已经做了优化，所以in和exist的效率是一样的。</p>
-<p>由此我们可以得出结论，在11g中，使用in和exist的效率是一样的，因为他们走的都是比较高效的ANTI算法。而网上所说的in慢于exist是在10g的时候会出现的情况，因为10g的时候在不指定列为非空的情况下，in走的是filter的算法，现对于anti半连接算法比较低效，但是在10g当中sql语句指定不为空，也可走anti算法。比如：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> dept <span class="keyword">where</span> deptno <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="keyword">select</span> deptno <span class="keyword">from</span> emp <span class="keyword">where</span> deptno <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>) <span class="keyword">and</span> deptno <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
-
-<h3 id="count谁最快"><a href="#count谁最快" class="headerlink" title="count谁最快"></a>count谁最快</h3><p> 首先创建测试表：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> <span class="keyword">test</span> <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">test</span> <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">update</span> <span class="keyword">test</span> <span class="keyword">set</span> object_id =<span class="keyword">rownum</span> ;</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
-
-<p>  在无索引的情况下，比较count(*)与count(object_id)</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="comment">--查看执行时间</span></span><br><span class="line">SQL&gt; set timing on </span><br><span class="line">SQL&gt; set autotrace traceonly; </span><br><span class="line">SQL&gt; select count(*) from test;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(object_id) from test;</span><br></pre></td></tr></table></figure>
-
-<p>我们在列object_id上创建索引，再次比较count(*)与count(object_id)</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_object_id <span class="keyword">on</span> <span class="keyword">test</span>(object_id);</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(*) from test;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(object_id) from test;</span><br></pre></td></tr></table></figure>
-
-<p>发现count(object_id)的速度明显比count(*)高出一大截，难道是因为count(object_id)能用到索引，所以效率才提高了很多？</p>
-<p>我们再修改下object_id的列属性，再次比较count(*)与count(object_id)</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(*) from test;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(object_id) from test;</span><br></pre></td></tr></table></figure>
-
-<p>结论：</p>
-<p>1）对于上述实验来说，在一个无任何索引的表中count(*)与count(object_id)的性能是一样的；</p>
-<p>2）在某一列有索引但此列可为空的前提下，count(*)比count(object_id)慢，因为count(object_id)用到了索引；</p>
-<p>3）在某一列有索引但此列不为空的前提下count(*)与count(object_id)的性能是一样的；</p>
-<p>另在没有索引的情况下，对不同的列做实验发现：</p>
-<img src="/Oracle/SQL/Oracle_SQL_optimization/sql.png" alt="sql.ping" style="zoom:80%;">
-
-<p>对于oracle优化器来说，count不同的列，统计的时间是不一样的，大致趋势是列越靠后，访问的开销越大，列的偏移量决定访问的性能。而count(*)的开销与偏移量无关。</p>
-<p>因此，在某些场合count(*)反而是最快的。</p>
-<h3 id="表的条件顺序"><a href="#表的条件顺序" class="headerlink" title="表的条件顺序"></a>表的条件顺序</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t1 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t2 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">id</span> ,dbms_random.string(<span class="string">'b'</span>, <span class="number">50</span>) n ,data_object_id data_id <span class="keyword">from</span> dba_objects <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">10000</span>;</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t1.object_id=<span class="number">29</span> <span class="keyword">and</span> t2.data_id&gt;<span class="number">8</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t2.data_id&gt;<span class="number">8</span> <span class="keyword">and</span> t1.object_id=<span class="number">29</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">--加个关联条件看看，看看</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t1.object_id=t2.id <span class="keyword">and</span> t1.object_id=<span class="number">29</span> <span class="keyword">and</span> t2.data_id&gt;<span class="number">8</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t1.object_id=t2.id <span class="keyword">and</span> t2.data_id&gt;<span class="number">8</span> <span class="keyword">and</span> t1.object_id=<span class="number">29</span> ;</span><br></pre></td></tr></table></figure>
-
+<ol>
+<li><p><strong>系统运行时间和平均负载：</strong></p>
+<p>top命令的顶部显示与uptime命令相似的输出。</p>
+<p>这些字段显示：</p>
+<ul>
+<li>当前时间</li>
+<li>系统已运行的时间</li>
+<li>当前登录用户的数量</li>
+<li>相应最近5、10和15分钟内的平均负载。</li>
+</ul>
+</li>
+<li><p><strong>任务</strong></p>
+<p>第二行显示的是任务或者进程的总结。进程可以处于不同的状态。这里显示了全部进程的数量。除此之外，还有正在运行、睡眠、停止、僵尸进程的数量（僵尸是一种进程的状态）。这些进程概括信息可以用’t’切换显示。</p>
+</li>
+<li><p><strong>CPU状态</strong></p>
+<p>下一行显示的是CPU状态。 这里显示了不同模式下的所占CPU时间的百分比。这些不同的CPU时间表示:</p>
+<ul>
+<li>us, user： 运行(未调整优先级的) 用户进程的CPU时间</li>
+<li>sy，system: 运行内核进程的CPU时间</li>
+<li>ni，niced：运行已调整优先级的用户进程的CPU时间</li>
+<li>wa，IO wait: 用于等待IO完成的CPU时间</li>
+<li>hi：处理硬件中断的CPU时间</li>
+<li>si: 处理软件中断的CPU时间</li>
+<li>st：这个虚拟机被hypervisor偷去的CPU时间（译注：如果当前处于一个hypervisor下的vm，实际上hypervisor也是要消耗一部分CPU处理时间的）。</li>
+</ul>
+</li>
+<li><p><strong>内存使用</strong></p>
+<p>接下来两行显示内存使用率，有点像’free’命令。第一行是物理内存使用，第二行是虚拟内存使用(交换空间)。</p>
+<p>物理内存显示如下:全部可用内存、已使用内存、空闲内存、缓冲内存。相似地：交换部分显示的是：全部、已使用、空闲和缓冲交换空间。</p>
 <blockquote>
-<p>结论：通过上述实验发现，无论有过滤条件的WHERE放在后面还是放在前面，效果是一样的。因此，关于有过滤条件的WHERE放在后面的说法是错误的。</p>
+<p>这里要说明的是不能用windows的内存概念理解这些数据，如果按windows的方式此台服务器“危矣”：8G的内存总量只剩下530M的可用内存。Linux的内存管理有其特殊性，复杂点需要一本书来说明，这里只是简单说点和我们传统概念（windows）的不同。</p>
+<p>第四行中使用中的内存总量（used）指的是现在系统内核控制的内存数，空闲内存总量（free）是内核还未纳入其管控范围的数量。纳入内核管理的内存不见得都在使用中，还包括过去使用过的现在可以被重复利用的内存，内核并不把这些可被重新使用的内存交还到free中去，因此在<a href="http://lib.csdn.net/base/linux" target="_blank" rel="noopener">linux</a>上free内存会越来越少，但不用为此担心。</p>
+<p>如果出于习惯去计算可用内存数，这里有个近似的计算公式：</p>
+<p>​        <strong>第四行的free + 第四行的buffers + 第五行的cached。</strong></p>
+<p>对于内存监控，在top里我们要时刻监控第五行swap交换分区的used，如果这个数值在不断的变化，说明内核在不断进行内存和swap的数据交换，这是真正的内存不够用了。</p>
 </blockquote>
-<h3 id="表的连接顺序"><a href="#表的连接顺序" class="headerlink" title="表的连接顺序"></a>表的连接顺序</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--来来来，做一个试验，看看SQL写法中，表的连接顺序是否很重要</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> tab_big;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> tab_small;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tab_big  <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tab_small  <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span> </span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_big,tab_small   ;  </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_small,tab_big   ;</span><br><span class="line"><span class="comment">---奇怪，以上实验发现性能是一样的，咋回事呢，看来真是谣言啊，这真是恶意传谣吗？</span></span><br><span class="line"></span><br><span class="line"><span class="comment">---大家看看下面的语句，比较一下性能。</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_big,tab_small ;  </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_small,tab_big ;</span><br></pre></td></tr></table></figure>
-
+</li>
+<li><p><strong>字段/列</strong></p>
+<table>
+<thead>
+<tr>
+<th>进程的属性</th>
+<th>属性含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PID</td>
+<td>进程ID，进程的唯一标识符</td>
+</tr>
+<tr>
+<td>USER</td>
+<td>进程所有者的实际用户名。</td>
+</tr>
+<tr>
+<td>PR</td>
+<td>进程的调度优先级。这个字段的一些值是’rt’。这意味这这些进程运行在实时态。</td>
+</tr>
+<tr>
+<td>NI</td>
+<td>进程的nice值（优先级）。越小的值意味着越高的优先级。</td>
+</tr>
+<tr>
+<td>VIRT</td>
+<td>进程使用的虚拟内存。</td>
+</tr>
+<tr>
+<td>RES</td>
+<td>驻留内存大小。驻留内存是任务使用的非交换物理内存大小。</td>
+</tr>
+<tr>
+<td>SHR</td>
+<td>SHR是进程使用的共享内存。</td>
+</tr>
+<tr>
+<td>S</td>
+<td>这个是进程的状态。它有以下不同的值:<br>D–不可中断的睡眠态、R–运行态、S–睡眠态、T–被跟踪或已停止、Z – 僵尸态</td>
+</tr>
+<tr>
+<td>%CPU</td>
+<td>自从上一次更新时到现在任务所使用的CPU时间百分比。</td>
+</tr>
+<tr>
+<td>%MEM</td>
+<td>进程使用的可用物理内存百分比。</td>
+</tr>
+<tr>
+<td>TIME+</td>
+<td>任务启动后到现在所使用的全部CPU时间，精确到百分之一秒。</td>
+</tr>
+<tr>
+<td>COMMAND</td>
+<td>运行进程所使用的命令。</td>
+</tr>
+</tbody></table>
+<p>还有许多在默认情况下不会显示的输出，它们可以显示进程的页错误、有效组和组ID和其他更多的信息。</p>
+<p>常用交互命令：</p>
+<p>‘B’：一些重要信息会以加粗字体显示(高亮)。这个命令可以切换粗体显示。</p>
+<p>‘b’:</p>
+<p>‘D’或’S‘: 你将被提示输入一个值（以秒为单位），它会以设置的值作为刷新间隔。如果你这里输入了1，top将会每秒刷新。 top默认为3秒刷新</p>
+<p>‘l’、‘t’、‘m’: 切换负载、任务、内存信息的显示，这会相应地切换顶部的平均负载、任务/CPU状态和内存信息的概况显示。</p>
+<p>‘z’ : 切换彩色显示</p>
+<p>‘x’ 或者 ‘y’</p>
+<p>切换高亮信息：’x’将排序字段高亮显示（纵列）；’y’将运行进程高亮显示（横行）。依赖于你的显示设置，你可能需要让输出彩色来看到这些高亮。</p>
+<p>‘u’: 特定用户的进程</p>
+<p>‘n’ 或 ‘#’: 任务的数量</p>
+<p>‘k’: 结束任务</p>
+<p><strong>命令行选项</strong></p>
 <blockquote>
-<p>结论：原来表连接顺序的说法早就过时了，在基于规则的时代，小表在后，大表在前确实性能高于小表在前大表在后，现在oracle是基于代价的。性能是一样的。</p>
+<p>top  //每隔3秒显式所有进程的资源占用情况</p>
+<p>top -u oracle -c //按照用户显示进程、并显示完整命令 </p>
+<p>top -d 2 //每隔2秒显式所有进程的资源占用情况</p>
+<p>top -c //每隔3秒显式进程的资源占用情况，并显示进程的命令行参数(默认只有进程名)</p>
+<p>top -p 12345 -p 6789//每隔3秒显示pid是12345和pid是6789的两个进程的资源占用情况</p>
+<p>top -d 2 -c -p 123456 //每隔2秒显示pid是12345的进程的资源使用情况，并显式该进程启动的命令行参数</p>
+<p>top -n  设置显示多少次后就退出</p>
 </blockquote>
-<h2 id="索引优化的优劣"><a href="#索引优化的优劣" class="headerlink" title="索引优化的优劣"></a>索引优化的优劣</h2><h3 id="索引的优势"><a href="#索引的优势" class="headerlink" title="索引的优势"></a>索引的优势</h3><h4 id="索引优化之回表"><a href="#索引优化之回表" class="headerlink" title="索引优化之回表"></a>索引优化之回表</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--索引回表读（TABLE ACCESS BY INDEX ROWID）的例子</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="comment">--只建一个主键索引，查询所有字段*</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx1_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">--试验1</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t <span class="keyword">where</span> object_id&lt;=<span class="number">5</span>;</span><br><span class="line"><span class="comment">--试验2</span></span><br><span class="line"><span class="comment">--比较消除TABLE ACCESS BY INDEX ROWID回表后的性能，将select * from改为select object_id from </span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> object_id <span class="keyword">from</span> t <span class="keyword">where</span> object_id&lt;=<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">--试验3：通过构造联合索引，再观察一个消除TABLE ACCESS BY INDEX ROWID的例子</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_un_objid_objname <span class="keyword">on</span> t(object_id,object_name);</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> object_id,object_name <span class="keyword">from</span> t <span class="keyword">where</span> object_id&lt;=<span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>补充</strong></p>
+<p>top命令是Linux上进行系统监控的首选命令，但有时候却达不到我们的要求，比如当前这台服务器，top监控有很大的局限性。这台服务器运行着websphere集群，有两个节点服务，就是【top视图 01】中的老大、老二两个java进程，top命令的监控最小单位是进程，所以看不到我关心的java线程数和客户连接数，而这两个指标是java的web服务非常重要的指标，通常我用ps和netstate两个命令来补充top的不足。</p>
+</li>
+</ol>
+<h4 id="vmstat"><a href="#vmstat" class="headerlink" title="vmstat"></a>vmstat</h4><p>​    vmstat命令是最常见的Linux/Unix监控工具，可以展现给定时间间隔的服务器的状态值,包括服务器的CPU使用率，内存使用，虚拟内存交换情况,IO读写情况。</p>
+<p>​    一般vmstat工具的使用是通过两个数字参数来完成的，第一个参数是采样的时间间隔数，单位是秒，第二个参数是采样的次数，如:</p>
+<img src="/Linux/Linux_performance/image-20200604203027136.png" alt="image-20200604203027136" style="zoom:75%;">
 
+<p>每个参数的含义：</p>
+<p><strong>Procs（进程）</strong></p>
+<table>
+<thead>
+<tr>
+<th>r:</th>
+<th>运行队列中进程数量，这个值也可以判断是否需要增加CPU。（长期大于1）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>b</td>
+<td>等待IO的进程数量。</td>
+</tr>
+</tbody></table>
+<p><strong>Memory（内存）</strong></p>
+<table>
+<thead>
+<tr>
+<th>swpd</th>
+<th>使用虚拟内存大小，如果swpd的值不为0，但是SI，SO的值长期为0，这种情况不会影响系统性能。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>free</td>
+<td>空闲物理内存大小。</td>
+</tr>
+<tr>
+<td>buff</td>
+<td>用作缓冲的内存大小。</td>
+</tr>
+<tr>
+<td>cache</td>
+<td>用作缓存的内存大小，如果cache的值大的时候，说明cache处的文件数多，如果频繁访问到的文件都能被cache处，那么磁盘的读IO bi会非常小。</td>
+</tr>
+</tbody></table>
+<p><strong>Swap</strong></p>
+<table>
+<thead>
+<tr>
+<th>si</th>
+<th>每秒从交换区写到内存的大小，由磁盘调入内存。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>so</td>
+<td>每秒写入交换区的内存大小，由内存调入磁盘。</td>
+</tr>
+</tbody></table>
+<p>注意：内存够用的时候，这2个值都是0，如果这2个值长期大于0时，系统性能会受到影响，磁盘IO和CPU资源都会被消耗。有些朋友看到空闲内存（free）很少的或接近于0时，就认为内存不够用了，不能光看这一点，还要结合si和so，如果free很少，但是si和so也很少（大多时候是0），那么不用担心，系统性能这时不会受到影响的。因为linux总是先把内存用光.</p>
+<p><strong>IO</strong></p>
+<table>
+<thead>
+<tr>
+<th>bi</th>
+<th>每秒读取的块数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bo</td>
+<td>每秒写入的块数</td>
+</tr>
+</tbody></table>
+<p>注意：随机磁盘读写的时候，这2个值越大（如超出1024k)，能看到CPU在IO等待的值也会越大。</p>
+<p><strong>system（系统）</strong></p>
+<table>
+<thead>
+<tr>
+<th>in</th>
+<th>每秒中断数，包括时钟中断。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>cs</td>
+<td>每秒上下文切换数。</td>
+</tr>
+</tbody></table>
+<p>注意：上面2个值越大，会看到由内核消耗的CPU时间会越大。</p>
+<p><strong>CPU（以百分比表示）</strong></p>
+<table>
+<thead>
+<tr>
+<th>us</th>
+<th>用户进程执行时间百分比(user  time) us的值比较高时，说明用户进程消耗的CPU时间多，但是如果长期超50%的使用，那么我们就该考虑优化程序算法或者进行加速。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>sy:</td>
+<td>内核系统进程执行时间百分比(system  time) sy的值高时，说明系统内核消耗的CPU资源多，这并不是良性表现，我们应该检查原因。</td>
+</tr>
+<tr>
+<td>wa</td>
+<td>IO等待时间百分比  wa的值高时，说明IO等待比较严重，这可能由于磁盘大量作随机访问造成，也有可能磁盘出现瓶颈（块操作）。</td>
+</tr>
+<tr>
+<td>id</td>
+<td>空闲时间百分比</td>
+</tr>
+</tbody></table>
+<h4 id="mpstat"><a href="#mpstat" class="headerlink" title="mpstat"></a>mpstat</h4><p>​    mpstat是一个实时监控工具，主要报告与CPU相关统计信息,在多核心cpu系统中，不仅可以查看cpu平均信息，还可以查看指定cpu信息。</p>
 <blockquote>
-<p>结论：通过观察执行计划，我们发现当不回表的时候，性能更好，因为只在索引当中就查到了我们想要的字段。</p>
+<p>mpstat -P ALL  //查看全部CPU的负载情况。 </p>
+<p>mpstat 2 5  //可指定间隔时间和次数。</p>
 </blockquote>
-<h4 id="索引优化之索引的高度"><a href="#索引优化之索引的高度" class="headerlink" title="索引优化之索引的高度"></a>索引优化之索引的高度</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">20</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t3 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">200</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t4 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">2000</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t5 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">20000</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t6 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">200000</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t7 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">2000000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t1 <span class="keyword">on</span> t1(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t2 <span class="keyword">on</span> t2(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t3 <span class="keyword">on</span> t3(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t4 <span class="keyword">on</span> t4(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t5 <span class="keyword">on</span> t5(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t6 <span class="keyword">on</span> t6(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t7 <span class="keyword">on</span> t7(<span class="keyword">id</span>);</span><br><span class="line"><span class="comment">--观察索引的高度的不同</span></span><br><span class="line"><span class="keyword">select</span> index_name,<span class="comment">--索引名字</span></span><br><span class="line">          blevel,<span class="comment">--索引高度</span></span><br><span class="line">          leaf_blocks,<span class="comment">--索引叶子占用块</span></span><br><span class="line">          num_rows,<span class="comment">--行数</span></span><br><span class="line">          distinct_keys,</span><br><span class="line">          clustering_factor</span><br><span class="line">     <span class="keyword">from</span> user_ind_statistics</span><br><span class="line">    <span class="keyword">where</span> table_name <span class="keyword">in</span>( <span class="string">'T1'</span>,<span class="string">'T2'</span>,<span class="string">'T3'</span>,<span class="string">'T4'</span>,<span class="string">'T5'</span>,<span class="string">'T6'</span>,<span class="string">'T7'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">--执行    </span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly <span class="keyword">statistics</span></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="comment">--注意观察逻辑读的次数，另外每条语句执行2遍以上，观察第2遍的结果。为了消除物理读以及递归调用。</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t3 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t4 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t5 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t6 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t7 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="comment">--观察全表扫描的结果</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t1)*/</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t2)*/</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t3)*/</span> * <span class="keyword">from</span> t3 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t4)*/</span> * <span class="keyword">from</span> t4 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t5)*/</span> * <span class="keyword">from</span> t5 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t6)*/</span> * <span class="keyword">from</span> t6 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t7)*/</span> * <span class="keyword">from</span> t7 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
+<table>
+<thead>
+<tr>
+<th>CPU: 处理器编号。关键字all表示统计信息计算为所有处理器之间的平均值。</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>％usr: 显示在用户级（应用程序）执行时发生的CPU利用率百分比。</td>
+</tr>
+<tr>
+<td>％nice: 显示以优先级较高的用户级别执行时发生的CPU利用率百分比。</td>
+</tr>
+<tr>
+<td>％sys: 显示在系统级（内核）执行时发生的CPU利用率百分比。请注意，这不包括维护硬件和软件的时间中断。</td>
+</tr>
+<tr>
+<td>％iowait: 显示系统具有未完成磁盘I / O请求的CPU或CPU空闲的时间百分比。</td>
+</tr>
+<tr>
+<td>％irq: 显示CPU或CPU用于服务硬件中断的时间百分比。</td>
+</tr>
+<tr>
+<td>%soft: 显示CPU或CPU用于服务软件中断的时间百分比。</td>
+</tr>
+<tr>
+<td>%steal: 显示虚拟CPU或CPU在管理程序为另一个虚拟处理器提供服务时非自愿等待的时间百分比。</td>
+</tr>
+<tr>
+<td>%guest: 显示CPU或CPU运行虚拟处理器所花费的时间百分比。</td>
+</tr>
+</tbody></table>
+<h4 id="sar"><a href="#sar" class="headerlink" title="sar"></a>sar</h4><p>系统活动情况报告，可以从多方面对系统的活动进行报告，包括：文件的读写情况、系统调用的使用情况、磁盘I/O、CPU效率、内存使用状况、进程活动及IPC有关的活动等</p>
+<p>CPU相关：</p>
+<p>sar -p （查看全天）</p>
+<p>sar -u 1 10 （1：每隔一秒，10：写入10次）</p>
+<p>CPU输出项-详细说明</p>
+<p>CPU:all 表示统计信息为所有 CPU 的平均值。</p>
+<p>%user:显示在用户级别(application)运行使用 CPU 总时间的百分比。</p>
+<p>%nice:显示在用户级别，用于nice操作，所占用 CPU 总时间的百分比。</p>
+<p>%system:在核心级别(kernel)运行所使用 CPU 总时间的百分比。</p>
+<p>%iowait:显示用于等待I/O操作占用 CPU 总时间的百分比。</p>
+<p>%steal:管理程序(hypervisor)为另一个虚拟进程提供服务而等待虚拟 CPU 的百分比。</p>
+<p>%idle:显示 CPU 空闲时间占用 CPU 总时间的百分比。</p>
+<h4 id="pidstat"><a href="#pidstat" class="headerlink" title="pidstat"></a>pidstat</h4><p>用于监控全部或指定进程的cpu、内存、线程、设备IO等系统资源的占用情况。</p>
+<p>pidstat 和 pidstat -u -p ALL 是等效的。<br>        pidstat 默认显示了所有进程的cpu使用率。</p>
+<p>详细说明</p>
+<p>PID：进程ID</p>
+<p>%usr：进程在用户空间占用cpu的百分比</p>
+<p>%system：进程在内核空间占用cpu的百分比</p>
+<p>%guest：进程在虚拟机占用cpu的百分比</p>
+<p>%CPU：进程占用cpu的百分比</p>
+<p>CPU：处理进程的cpu编号</p>
+<p>Command：当前进程对应的命令</p>
+<h3 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h3><p>内存是为提高效率而生，实际分析问题的时候，内存出现问题可能不只是影响性能，而是影响服务或者引起其他问题。同样对于内存有些概念需要清楚：</p>
+<ul>
+<li>主存</li>
+<li>虚拟内存</li>
+<li>常驻内存</li>
+<li>地址空间</li>
+<li>OOM</li>
+<li>页缓存</li>
+<li>缺页</li>
+<li>换页</li>
+<li>交换空间</li>
+<li>交换</li>
+<li>用户分配器libc、glibc、libmalloc和mtmalloc</li>
+<li>LINUX内核级SLUB分配器</li>
+</ul>
+<h4 id="分析工具-1"><a href="#分析工具-1" class="headerlink" title="分析工具"></a>分析工具</h4><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>free</td>
+<td>查看内存的使用情况</td>
+</tr>
+<tr>
+<td>top</td>
+<td>监控每个进程的内存使用情况</td>
+</tr>
+<tr>
+<td>vmstat</td>
+<td>虚拟内存统计信息</td>
+</tr>
+<tr>
+<td>sar -r</td>
+<td>查看内存</td>
+</tr>
+<tr>
+<td>sar</td>
+<td>查看CPU过去或未来时点CPU利用率</td>
+</tr>
+<tr>
+<td>pidstat</td>
+<td>查看每个进程的内存使用情况</td>
+</tr>
+</tbody></table>
+<h4 id="free"><a href="#free" class="headerlink" title="free"></a>free</h4><p>free 命令显示系统内存的使用情况，包括物理内存、交换内存(swap)和内核缓冲区内存。</p>
+<p>Mem 行(第二行)是内存的使用情况。<br>        Swap 行(第三行)是交换空间的使用情况。<br>        total 列显示系统总的可用物理内存和交换空间大小。<br>        used 列显示已经被使用的物理内存和交换空间。<br>        free 列显示还有多少物理内存和交换空间可用使用。<br>        shared 列显示被共享使用的物理内存大小。<br>        buff/cache 列显示被 buffer 和 cache 使用的物理内存大小。<br>        available 列显示还可以被应用程序使用的物理内存大小。</p>
+<p>常用命令：</p>
 <blockquote>
-<p>结论：当索引的高度相同时，使用索引查询，发现产生逻辑读的次数一般相同；而使用全表扫描的差异巨大。但是请注意这是建立在返回一条数据或者少数数据的前体下，如果返回大量的数据，使用索引反而比使用全表扫描更慢。另外，在本案例中，大家也许觉得两百万数据量在全表扫描时执行速度也很快，那是因为这些表字段很少，oracle不会占用很多的数据块，当表的字段同样类型的增加到40个乃至更多，速度自然而然就慢了，因为遍历的块更多了。所以我们有时可以删除一些不需要的字段从而使某些需要全表扫描的场合性能提高。</p>
+<p>free   </p>
+<p>free -g  以GB显示</p>
+<p>free -m  以MB显示</p>
+<p>free -h  自动转换展示</p>
+<p>free -h -s  3  有时我们需要持续的观察内存的状况，此时可以使用 -s 选项并指定间隔的秒数</p>
 </blockquote>
-<h4 id="索引优化之count，sum，avg"><a href="#索引优化之count，sum，avg" class="headerlink" title="索引优化之count，sum，avg"></a>索引优化之count，sum，avg</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="keyword">rownum</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx1_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="keyword">set</span> autotrace <span class="keyword">on</span></span><br><span class="line"><span class="comment">--此时走的是全表扫描</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t;</span><br><span class="line"><span class="comment">--此时走的是索引</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t <span class="keyword">where</span> object_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="comment">--也可以不加is not null，直接把列的属性设置为not null，也成，继续试验如下：</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t;</span><br><span class="line"><span class="comment">--如果是主键就无需定义列是否允许为空了。因为主键本身就不能为空，此时也可走索引</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--sum以及avg同样的套路，可以自行实验，至少在11g当中是这样</span></span><br></pre></td></tr></table></figure>
+<p>所以从应用程序的角度来说，<strong>available = free + buffer + cache</strong></p>
+<p>可用内存=系统free memory+buffers+cached。</p>
+<h4 id="top-1"><a href="#top-1" class="headerlink" title="top"></a>top</h4><p>请参考上面top的详解</p>
+<h4 id="vmstat-1"><a href="#vmstat-1" class="headerlink" title="vmstat"></a>vmstat</h4><p>请参考上面vmstat的详解</p>
+<h4 id="sar-1"><a href="#sar-1" class="headerlink" title="sar"></a>sar</h4><p>sar -r  #查看内存使用情况</p>
+<p>详解：</p>
+<p>kbmemfree  空闲的物理内存大小</p>
+<p>kbmemused  使用中的物理内存大小</p>
+<p>%memused 物理内存使用率</p>
+<p>kbbuffers 内核中作为缓冲区使用的物理内存大小，kbbuffers和kbcached:这两个值就是free命令中的buffer                            和cache. </p>
+<p>kbcached 缓存的文件大小</p>
+<p>kbcommit  保证当前系统正常运行所需要的最小内存，即为了确保内存不溢出而需要的最少内存（物理内存                            +Swap分区）</p>
+<p>commt 这个值是kbcommit与内存总量（物理内存+swap分区）的一个百分比的值</p>
+<h4 id="pidstat-1"><a href="#pidstat-1" class="headerlink" title="pidstat"></a>pidstat</h4><p>pidstat -r  查看内存使用情况 pidstat将显示各活动进程的内存使用统计</p>
+<p>PID：进程标识符</p>
+<p>Minflt/s:任务每秒发生的次要错误，不需要从磁盘中加载页</p>
+<p>Majflt/s:任务每秒发生的主要错误，需要从磁盘中加载页</p>
+<p>VSZ：虚拟地址大小，虚拟内存的使用KB</p>
+<p>RSS：常驻集合大小，非交换区五里内存使用KB</p>
+<p>Command：task命令名</p>
+<h3 id="磁盘IO"><a href="#磁盘IO" class="headerlink" title="磁盘IO"></a>磁盘IO</h3><p>磁盘通常是计算机最慢的子系统，也是最容易出现性能瓶颈的地方，因为磁盘离 CPU 距离最远而且 CPU 访问磁盘要涉及到机械操作，比如转轴、寻轨等。访问硬盘和访问内存之间的速度差别是以数量级来计算的，就像1天和1分钟的差别一样。要监测 IO 性能，有必要了解一下基本原理和 Linux 是如何处理硬盘和内存之间的 IO 的。</p>
+<p>在理解磁盘IO之前，同样我们需要理解一些概念，例如：</p>
+<ul>
+<li>文件系统</li>
+<li>VFS</li>
+<li>文件系统缓存</li>
+<li>页缓存page cache</li>
+<li>缓冲区高速缓存buffer cache</li>
+<li>目录缓存</li>
+<li>inode</li>
+<li>inode缓存</li>
+<li>noop调用策略</li>
+</ul>
+<h4 id="分析工具-2"><a href="#分析工具-2" class="headerlink" title="分析工具"></a>分析工具</h4><table>
+<thead>
+<tr>
+<th>工具</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iostat</td>
+<td>磁盘详细统计信息</td>
+</tr>
+<tr>
+<td>iotop</td>
+<td>按进程查看磁盘IO统计信息</td>
+</tr>
+<tr>
+<td>pidstat</td>
+<td>查看每个进程的磁盘IO使用情况</td>
+</tr>
+</tbody></table>
+<h4 id="iostat"><a href="#iostat" class="headerlink" title="iostat"></a>iostat</h4><p>iostat工具将对系统的磁盘操作活动进行监视。它的特点是汇报磁盘活动统计情况，同时也会汇报出CPU使用情况</p>
+<img src="/Linux/Linux_performance/iostat.png" alt="image-20200604203027136" style="zoom:55%;">
 
+<p>CPU属性</p>
+<p>%user：CPU处在用户模式下的时间百分比。</p>
+<p>%nice：CPU处在带NICE值的用户模式下的时间百分比。</p>
+<p>%system：CPU处在系统模式下的时间百分比。</p>
+<p>%iowait：CPU等待输入输出完成时间的百分比。</p>
+<p>%steal：管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比。</p>
+<p>%idle：CPU空闲时间百分比。</p>
+<p>备注：</p>
+<p>如果%iowait的值过高，表示硬盘存在I/O瓶颈</p>
+<p>如果%idle值高，表示CPU较空闲</p>
+<p>如果%idle值高但系统响应慢时，可能是CPU等待分配内存，应加大内存容量。</p>
+<p>如果%idle值持续低于10，表明CPU处理能力相对较低，系统中最需要解决的资源是CPU。</p>
+<p>Device属性</p>
+<p>tps：该设备每秒的传输次数</p>
+<p>kB_read/s：每秒从设备（drive expressed）读取的数据量；</p>
+<p>kB_wrtn/s：每秒向设备（drive expressed）写入的数据量；</p>
+<p>kB_read： 读取的总数据量；</p>
+<p>kB_wrtn：写入的总数量数据量</p>
+<p>常用命令：</p>
+<p>iostat 2 3 每隔2秒刷新显示，且显示3次</p>
+<p>iostat -m 以M为单位显示所有信息</p>
+<p>查看设备使用率（%util）、响应时间（await）</p>
+<p>iostat -d -x -k 1 1</p>
+<h4 id="iotop"><a href="#iotop" class="headerlink" title="iotop"></a>iotop</h4><p>在一般运维工作中经常会遇到这么一个场景，服务器的IO负载很高（iostat中的util），但是无法快速的定位到IO负载的来源进程和来源文件导致无法进行相应的策略来解决问题。</p>
+<p>如果你想检查那个进程实际在做 I/O，那么运行 <code>iotop</code> 命令加上 <code>-o</code> 或者 <code>--only</code> 参数。</p>
+<p>iotop –only </p>
+<h4 id="pidstat-2"><a href="#pidstat-2" class="headerlink" title="pidstat"></a>pidstat</h4><p>显示各个进程的IO使用情况</p>
+<p>pidstat -d</p>
+<p>报告IO统计显示以下信息：</p>
+<ul>
+<li>PID：进程id</li>
+<li>kB_rd/s：每秒从磁盘读取的KB</li>
+<li>kB_wr/s：每秒写入磁盘KB</li>
+<li>kB_ccwr/s：任务取消的写入磁盘的KB。当任务截断脏的pagecache的时候会发生。</li>
+<li>COMMAND:task的命令名</li>
+</ul>
+<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><h4 id="分析工具-3"><a href="#分析工具-3" class="headerlink" title="分析工具"></a>分析工具</h4><table>
+<thead>
+<tr>
+<th>ping</th>
+<th>测试网络的连通性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>netstat</td>
+<td>检验本机各端口的网络连接情况</td>
+</tr>
+<tr>
+<td>hostname</td>
+<td>查看主机和域名</td>
+</tr>
+</tbody></table>
+<h4 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h4><p>常用命令参数：</p>
+<p>-d 使用Socket的SO_DEBUG功能。</p>
+<p>-f 极限检测。大量且快速地送网络封包给一台机器，看它的回应。</p>
+<p>-n 只输出数值。</p>
+<p>-q 不显示任何传送封包的信息，只显示最后的结果。</p>
+<p>-r 忽略普通的Routing Table，直接将数据包送到远端主机上。通常是查看本机的网络接口是否有问题。</p>
+<p>-R 记录路由过程。</p>
+<p>-v 详细显示指令的执行过程。</p>
+<p>-c 数目：在发送指定数目的包后停止。
+
+</p><p>-i 秒数：设定间隔几秒送一个网络封包给一台机器，预设值是一秒送一次。</p>
+<p>-I 网络界面：使用指定的网络界面送出数据包。</p>
+<p>-l 前置载入：设置在送出要求信息之前，先行发出的数据包。</p>
+<p>-p 范本样式：设置填满数据包的范本样式。</p>
+<p>-s 字节数：指定发送的数据字节数，预设值是56，加上8字节的ICMP头，一共是64ICMP数据字节。</p>
+<p>-t 存活数值：设置存活数值TTL的大小。</p>
 <blockquote>
-<p>结论：当我们在使用count函数，或者是sum以及avg聚合函数时，当此列有索引的时候，要注意此列的取值是否可为空，这关系到是否使用索引；当没有索引时，根据实际情况考虑是否添加索引。</p>
+<p>ping -b 192.168.120.1   –ping网关</p>
+<p>ping -c 10 192.168.120.206  –ping指定次数</p>
+<p>ping -c 10 -i 0.5 192.168.120.206   –时间间隔和次数限制的ping</p>
 </blockquote>
-<h4 id="索引优化之distinct"><a href="#索引优化之distinct" class="headerlink" title="索引优化之distinct"></a>索引优化之distinct</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="keyword">rownum</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> T <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="number">3</span> <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">25000</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="comment">--测试1</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">distinct</span> object_id <span class="keyword">from</span> t ;</span><br><span class="line"><span class="comment">--测试2</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="keyword">select</span>  <span class="comment">/*+index(t)*/</span> <span class="keyword">distinct</span> object_id <span class="keyword">from</span> t ;</span><br></pre></td></tr></table></figure>
+<h4 id="netstat"><a href="#netstat" class="headerlink" title="netstat"></a>netstat</h4><p>netstat命令是一个监控TCP/IP网络的非常有用的工具，它可以显示路由表、实际的网络连接以及每一个网络接口设备的状态信息。</p>
+<p>netstat [选项]</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-a或--all：显示所有连线中的Socket； </span><br><span class="line">-a (all) 显示所有选项，默认不显示LISTEN相关。</span><br><span class="line">-t (tcp) 仅显示tcp相关选项。</span><br><span class="line">-u (udp) 仅显示udp相关选项。</span><br><span class="line">-n 拒绝显示别名，能显示数字的全部转化成数字。</span><br><span class="line">-l 仅列出有在 Listen (监听) 的服务状态。</span><br><span class="line">-p 显示建立相关链接的程序名</span><br><span class="line">-r 显示路由信息，路由表</span><br><span class="line">-e 显示扩展信息，例如uid等</span><br><span class="line">-s 按各个协议进行统计</span><br><span class="line">-c 每隔一个固定时间，执行该netstat命令。</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>结论：经测试发现，执行计划当中并没有显示其发生了排序操作，那是因为在oracle10g的R2环境之后，DISTINCT由于其 HASH UNIQUE的算法导致其不会产生排序，不过虽然没有排序，通过观察执行计划当中的TempSpc可知distinct消耗PGA内存进行HASH UNIQUE运算；接下来看看建了索引后的情况，TempSpc关键字并没有消失，因此网上许多所说的会消失是不正确的，至少在oracle11g（11.2.0.1.0）当中并没有消失，但是COST确实下降许多；不过在现实中，DISTINCT往往靠索引来优化效果并不是很明显，因为大多数用到DISTINCT的地方是因为我们的表中有重复记录，因此，我们一般首先要考虑的是为什么会重复。</p>
-</blockquote>
-<h4 id="索引优化之union"><a href="#索引优化之union" class="headerlink" title="索引优化之union"></a>索引优化之union</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">----UNION 是需要排序的</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t1 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> object_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t1 <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t2 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> object_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t2 <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> object_id <span class="keyword">from</span> t1</span><br><span class="line"><span class="keyword">union</span></span><br><span class="line"><span class="keyword">select</span> object_id <span class="keyword">from</span> t2;</span><br><span class="line"></span><br><span class="line"><span class="comment">--发现索引无法消除UNION 排序</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t1_object_id <span class="keyword">on</span> t1(object_id);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_object_id <span class="keyword">on</span> t2(object_id);</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t1</span><br><span class="line"><span class="keyword">union</span></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t2;</span><br></pre></td></tr></table></figure>
+<p>常用命令：</p>
+<p>列出所有端口情况</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -a      # 列出所有端口</span><br><span class="line">netstat -at     # 列出所有TCP端口</span><br><span class="line">netstat -au     # 列出所有UDP端口</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>结论：使用UNION是会产生排序的，使用索引无法消除UNION 排序，因此我们在使用的时候要确定是否有使用的 必要，如果表中没有重复记录，则使用UNION ALL即可。</p>
-</blockquote>
-<h4 id="索引优化之order-by"><a href="#索引优化之order-by" class="headerlink" title="索引优化之order by"></a>索引优化之order by</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects ;</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="comment">--以下语句没有索引又有order by ，必然产生排序</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> object_id;</span><br><span class="line"><span class="comment">---新增索引后，Oracle就有可能利用索引本身就有序的特点，利用索引来避免排序，如下：</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> object_id;</span><br><span class="line"><span class="comment">--如下情况Oracle肯定毫不犹豫的选择用索引,因为回表取消了 !      </span></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> object_id;</span><br><span class="line"><span class="comment">--如下情况，就算有索引，oracle也不会用索引</span></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<p>列出所有处于监听状态的 Sockets</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -l   # 只显示监听端口</span><br><span class="line">netstat -lt  # 显示监听TCP端口</span><br><span class="line">netstat -lu  # 显示监听UDP端口</span><br><span class="line">netstat -lx  # 显示监听UNIX端口</span><br></pre></td></tr></table></figure>
 
-<h3 id="索引的劣势"><a href="#索引的劣势" class="headerlink" title="索引的劣势"></a>索引的劣势</h3><h4 id="位图索引遭遇更新苦不堪言"><a href="#位图索引遭遇更新苦不堪言" class="headerlink" title="位图索引遭遇更新苦不堪言"></a>位图索引遭遇更新苦不堪言</h4><p>测试数据准备</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t </span><br><span class="line">(name_id,</span><br><span class="line"> gender <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line"> location <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line"> age_group <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line"> <span class="keyword">data</span></span><br><span class="line"> )</span><br><span class="line"> <span class="keyword">as</span></span><br><span class="line"> <span class="keyword">select</span> <span class="keyword">rownum</span>,</span><br><span class="line">        <span class="keyword">decode</span>(<span class="keyword">ceil</span>(dbms_random.value(<span class="number">0</span>,<span class="number">2</span>)),</span><br><span class="line">               <span class="number">1</span>,<span class="string">'M'</span>,</span><br><span class="line">               <span class="number">2</span>,<span class="string">'F'</span>)gender,</span><br><span class="line">        <span class="keyword">ceil</span>(dbms_random.value(<span class="number">1</span>,<span class="number">50</span>)) location,</span><br><span class="line">        <span class="keyword">decode</span>(<span class="keyword">ceil</span>(dbms_random.value(<span class="number">0</span>,<span class="number">3</span>)),</span><br><span class="line">               <span class="number">1</span>,<span class="string">'child'</span>,</span><br><span class="line">               <span class="number">2</span>,<span class="string">'young'</span>,</span><br><span class="line">               <span class="number">3</span>,<span class="string">'middle_age'</span>,</span><br><span class="line">               <span class="number">4</span>,<span class="string">'old'</span>),</span><br><span class="line">         rpad(<span class="string">'*'</span>,<span class="number">400</span>,<span class="string">'*'</span>)</span><br><span class="line"><span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">rownum</span>&lt;=<span class="number">100000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">bitmap</span> <span class="keyword">index</span> gender_idx <span class="keyword">on</span> t(gender);</span><br><span class="line"><span class="comment">---实验一：</span></span><br><span class="line"><span class="comment">--SESSION 1 不提交</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t(name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100001</span>,<span class="string">'M'</span>,<span class="number">45</span>,<span class="string">'child'</span>,rpad(<span class="string">'*'</span>,<span class="number">20</span>,<span class="string">'*'</span>));</span><br><span class="line"><span class="comment">--SESSION 2</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t(name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100002</span>,<span class="string">'M'</span>,<span class="number">46</span>, <span class="string">'young'</span>, rpad(<span class="string">'*'</span>,<span class="number">20</span>,<span class="string">'*'</span>));</span><br><span class="line"><span class="comment">---实验二：</span></span><br><span class="line"><span class="comment">--SESSION 1（持有者）</span></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'M'</span> <span class="keyword">AND</span> LOCATION=<span class="number">25</span>;</span><br><span class="line"><span class="comment">---SESSION 2(其他会话) 插入带M的记录就立即被阻挡，以下三条语句都会被阻止</span></span><br><span class="line"><span class="keyword">insert</span>  <span class="keyword">into</span> t (name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100001</span>,<span class="string">'M'</span>,<span class="number">78</span>, <span class="string">'young'</span>,<span class="string">'TTT'</span>);</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> gender=<span class="string">'M'</span> <span class="keyword">WHERE</span> LOCATION=<span class="number">25</span>;</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'M'</span>;</span><br><span class="line"><span class="comment">--实验三：</span></span><br><span class="line"><span class="comment">--SESSION 1（持有者）</span></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'M'</span> <span class="keyword">AND</span> LOCATION=<span class="number">25</span>;</span><br><span class="line"><span class="comment">---SESSION 2(其他会话)</span></span><br><span class="line"><span class="comment">--以下是可以进行不受阻碍的</span></span><br><span class="line"><span class="keyword">insert</span>  <span class="keyword">into</span> t (name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100001</span>,<span class="string">'F'</span>,<span class="number">78</span>, <span class="string">'young'</span>,<span class="string">'TTT'</span>);</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span>  t <span class="keyword">where</span> gender=<span class="string">'F'</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> T <span class="keyword">SET</span> LOCATION=<span class="number">100</span> <span class="keyword">WHERE</span> <span class="keyword">ROWID</span> <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="keyword">SELECT</span> <span class="keyword">ROWID</span> <span class="keyword">FROM</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'F'</span> <span class="keyword">AND</span> LOCATION=<span class="number">25</span>) ;</span><br></pre></td></tr></table></figure>
+<p>显示每个协议的统计信息</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -s     # 显示所有端口的统计信息</span><br><span class="line">netstat -st    # 显示所有TCP的统计信息</span><br><span class="line">netstat -su    # 显示所有UDP的统计信息</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>结论：当你对于某一张表的一个字段加了位图索引之后，对于此表的操作，目前可以说几乎只能是单进程单用户操作了，这样的操作显然不支持高并发，对于整体系统并没有好处。因此要注意位图索引的使用场景。</p>
-</blockquote>
-<h4 id="建索引过程会产生全表锁"><a href="#建索引过程会产生全表锁" class="headerlink" title="建索引过程会产生全表锁"></a>建索引过程会产生全表锁</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="comment">--尽可能插入多点数据，不然操作太快来不及发现</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">--SESSION 1</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="comment">--SESSION 2</span></span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="number">99999</span> <span class="keyword">where</span> object_id=<span class="number">8</span>;</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> t <span class="keyword">where</span> object_id=<span class="number">8</span>;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span>  t (OWNER) <span class="keyword">values</span> (<span class="string">'111'</span>);</span><br></pre></td></tr></table></figure>
+<p>显示 PID 和进程名称</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -p</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>结论：经上述实验可得，普通的对表建索引将会导致针对该表的更新操作无法进行，需要等待索引建完。更新操作将会被建索引动作阻塞。SESSION2 的三个操作，均需要SESSION1的索引建完之后才能执行。因此，在我们平时建索引的时候，尤其是对于一些大表在生产系统建立索引的时候一定要在夜里业务不繁忙的时候进行。</p>
-</blockquote>
-<h4 id="索引过多影响插入"><a href="#索引过多影响插入" class="headerlink" title="索引过多影响插入"></a>索引过多影响插入</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test1 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test2 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test3 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_owner <span class="keyword">on</span> test1(owner);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_object_name <span class="keyword">on</span> test1(object_name);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_data_obj_id <span class="keyword">on</span> test1(data_object_id);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_created <span class="keyword">on</span> test1(created);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_last_ddl_time <span class="keyword">on</span> test1(last_ddl_time);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_status <span class="keyword">on</span> test1(<span class="keyword">status</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_sta <span class="keyword">on</span> test2(<span class="keyword">status</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_objid <span class="keyword">on</span> test2(object_id);</span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span> </span><br><span class="line"><span class="comment">--语句1(test1表有6个索引）</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test1 <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--语句2(test2表有2个索引）</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test2 <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--语句3(test3表有无索引）</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test3 <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+<p>显示网络统计信息</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat -s</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>结论：索引越多，插入速度越慢。因为有了索引，更新了记录就更新了索引，就要维护索引那种有序排列的结构，开销比较大。因此我们在项目中建索引要考虑全面，并且建索引要规范。而我们在项目中若遇到大批量的向大表中插入数据时，我们可以先禁用索引，插入完成之后再重建索引，这样效率会比有索引插入快。因为此时重建索引是一个批量的动作，而不是单次插入单次维护索引。</p>
-</blockquote>
-<h2 id="表连接优化"><a href="#表连接优化" class="headerlink" title="表连接优化"></a>表连接优化</h2><h4 id="NL连接（Nest-Loop）"><a href="#NL连接（Nest-Loop）" class="headerlink" title="NL连接（Nest Loop）"></a>NL连接（Nest Loop）</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t1 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t2 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)); </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t2 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     t1_id <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)); </span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t1 <span class="keyword">SELECT</span> <span class="keyword">rownum</span>,<span class="keyword">rownum</span>, dbms_random.string(<span class="string">'a'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual  <span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">10000</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t2 <span class="keyword">SELECT</span> <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, dbms_random.string(<span class="string">'b'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual <span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">1000000</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">COMMIT</span>; </span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_nl(t2) */</span> * <span class="keyword">FROM</span> t1,t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">AND</span> t1.n= <span class="number">19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="comment">--收集统计信息.</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> statistics_level=<span class="keyword">all</span> ;</span><br><span class="line"></span><br><span class="line"><span class="comment">---1.对t1表的限制条件建索引</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> t1_n <span class="keyword">ON</span> t1 (n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_nl(t2) */</span> * <span class="keyword">FROM</span> t1,t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">AND</span> t1.n= <span class="number">19</span></span><br><span class="line"><span class="comment">--查看执行计划</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">---2.在1的基础上对被驱动表t2表的连接条件建索引</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> t2_t1_id <span class="keyword">ON</span> t2(t1_id);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_nl(t2) */</span> * <span class="keyword">FROM</span> t1,t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">AND</span> t1.n= <span class="number">19</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">---3.确保小结果集先驱动</span></span><br><span class="line"><span class="comment">--我们构造如下：假如oracle的统计信息不准确</span></span><br><span class="line"><span class="comment">--以下故意错乱颠倒，欺骗Oracle说T1表是大表而T2表是小表。</span></span><br><span class="line">EXEC  dbms_stats.SET_table_stats(user, 'T1', numrows =&gt; 20000000  ,numblks =&gt; 1000000);</span><br><span class="line">EXEC  dbms_stats.SET_table_stats(user, 'T2', numrows =&gt; 1  ,numblks =&gt; 1);</span><br><span class="line"><span class="comment">--此时t2表为驱动表，t1表为被驱动表，此时发现性能大幅度下降</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id  t2.t1_id <span class="keyword">AND</span> t1.n &lt;= <span class="number">19</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br></pre></td></tr></table></figure>
+<p>统计机器中网络连接各个状态个数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">netstat&#96; &#96;-an | &#96;&#96;awk&#96; &#96;&#39;&#x2F;^tcp&#x2F; &#123;++S[$NF]&#125; END &#123;for (a in S) print a,S[a]&#125; &#39;</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>结论：通过以上实验的执行计划可以看出，当使用NL连接的时候，我们保证以上三点，会使sql达到比较好的性能。</p>
-<p>为什么在嵌套循环的驱动表的限制条件建索引,被驱动表的连接条件建索引？<br>驱动表的限制条件建索引的目的是为了减少扫描驱动表的时间。如果在驱动表的连接条件建索引就没有任何意义，所有列关联到另一表的所有列，等同于每条记录都要进行关联，而在驱动表的限制条件建了索引之后，只快速返回一条或者几条记录，然后在传递给被驱动表的连接条件列，一般情况下被驱动表对应的驱动表的记录返回的不多，所以在被驱动表的连接条件建立索引是有必要的。</p>
-</blockquote>
-<h4 id="HASH-JOIN连接"><a href="#HASH-JOIN连接" class="headerlink" title="HASH JOIN连接"></a>HASH JOIN连接</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--环境构造</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t1 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t2 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)</span><br><span class="line">   ); </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t2 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     t1_id <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)</span><br><span class="line">   );  </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t1 <span class="keyword">SELECT</span>  <span class="keyword">rownum</span>,  <span class="keyword">rownum</span>, dbms_random.string(<span class="string">'a'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual </span><br><span class="line"><span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">10000</span></span><br><span class="line">      <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t2 <span class="keyword">SELECT</span> <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, dbms_random.string(<span class="string">'b'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual <span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">100000</span></span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">COMMIT</span>; </span><br><span class="line"></span><br><span class="line"><span class="comment">--1.两表的限制条件有索引(注：针对索引条件返回记录很少的情况）！</span></span><br><span class="line"><span class="comment">--首先测试Hash Join两表的限制条件皆无索引的情况</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> statistics_level=<span class="keyword">all</span> ;</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--在t1表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t1_n <span class="keyword">on</span> t1(n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--在t2表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_n <span class="keyword">on</span> t2(n);   </span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--2.确保小结果集先驱动</span></span><br><span class="line"><span class="comment">--t1为驱动表</span></span><br><span class="line"><span class="keyword">SELECT</span>  * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--t2为驱动表</span></span><br><span class="line"><span class="keyword">SELECT</span>  <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--结论：在2的实验中发现，虽然buffers的变化可能很小甚至一样，但是userd-mem却差异比较明显。说明排序尺寸差异明显。在结合时间发现，两者的时间差异也比较明显。大表为驱动表所耗时间较长。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--3.确保PGA尺寸足够</span></span><br><span class="line"><span class="comment">--因为HASH JOIN连接会使用到PGA内存区域的hash area，若内存不够，会用到磁盘的空间。</span></span><br></pre></td></tr></table></figure>
+<p><strong>补充netstat网络状态详解：</strong></p>
+<p>一个正常的TCP连接，都会有三个阶段:1、TCP三次握手;2、数据传送;3、TCP四次挥手</p>
+<img src="/Linux/Linux_performance/tcpconn.png" alt="在这里插入图片描述" style="zoom:40%;">
 
-<h4 id="Merge-Sort-Join连接"><a href="#Merge-Sort-Join连接" class="headerlink" title="Merge Sort Join连接"></a>Merge Sort Join连接</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--环境构造同上hash join</span></span><br><span class="line"><span class="comment">--1.两表的限制条件有索引</span></span><br><span class="line"><span class="comment">--两表限制条件皆无索引的情况</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> statistics_level=<span class="keyword">all</span> ;</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_merge(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--t1表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t1_n <span class="keyword">on</span> t1(n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_merge(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--t2表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_n <span class="keyword">on</span> t2(n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_merge(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--2.连接字段有索引，争取利用索引来消除排序（可惜的是，在11g以及之前版本，ORACLE算法的限制，只能避免一次排序，后续版本未知，需要试验）</span></span><br><span class="line"><span class="comment">--两表的连接条件都无索引的情况，有两次排序：</span></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_merge(t2)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="comment">--t1表建索引，发现排序消除了一个</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_t1_id <span class="keyword">ON</span> t1(<span class="keyword">id</span>); </span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_merge(t2)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="comment">--在t2表的连接条件建索引，发现排序依然有一个，无法消除</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_t2_t1_id <span class="keyword">ON</span> t2(t1_id);   </span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_merge(t2)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="comment">--3.避免多余列致排序尺寸过大（取部分字段）</span></span><br><span class="line"><span class="comment">--对于NL以及hash连接来说，只取部分列性能基本不会有什么变化</span></span><br><span class="line"><span class="comment">--4.确保PGA尺寸足够</span></span><br></pre></td></tr></table></figure>
+
+
+<p><strong>TCP的连接释放</strong></p>
+<img src="/Linux/Linux_performance/tcpclose.png" alt="在这里插入图片描述" style="zoom:80%;">
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">LISTEN：侦听来自远方的TCP端口的连接请求</span><br><span class="line">SYN-SENT：再发送连接请求后等待匹配的连接请求（如果有大量这样的状态包，检查是否中招了）</span><br><span class="line">SYN-RECEIVED：再收到和发送一个连接请求后等待对方对连接请求的确认（如有大量此状态估计被flood攻击了）</span><br><span class="line">ESTABLISHED：代表一个打开的连接</span><br><span class="line">FIN-WAIT-1：等待远程TCP连接中断请求，或先前的连接中断请求的确认</span><br><span class="line">FIN-WAIT-2：从远程TCP等待连接中断请求</span><br><span class="line">CLOSE-WAIT：等待从本地用户发来的连接中断请求</span><br><span class="line">CLOSING：等待远程TCP对连接中断的确认</span><br><span class="line">LAST-ACK：等待原来的发向远程TCP的连接中断请求的确认（不是什么好东西，此项出现，检查是否被攻击）</span><br><span class="line">TIME-WAIT：等待足够的时间以确保远程TCP接收到连接中断请求的确认</span><br><span class="line">CLOSED：没有任何连接状态</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
-        <category>Oracle</category>
-        <category>SQL</category>
+        <category>Linux</category>
       </categories>
       <tags>
-        <tag>Oracle</tag>
-        <tag>SQL优化</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Oracle事务&amp;锁</title>
-    <url>/Oracle/Oracle_Tran/</url>
-    <content><![CDATA[<h1 id="Oracle事务-amp-锁"><a href="#Oracle事务-amp-锁" class="headerlink" title="Oracle事务&amp;锁"></a>Oracle事务&amp;锁</h1><h2 id="事务特性"><a href="#事务特性" class="headerlink" title="事务特性"></a>事务特性</h2><p>在关系型数据库（BD2,Oracle,Sybase,Informix和Sql Server）最小的恢复和交易单位为一个事务，事务具有ACID（原子性，一致性，隔离性，永久性）特征。关系数据库为了确保并发用户在存取同一数据库对象的正确性（即无脏读，无丢失更新，可重复读，无幻读），数据库中引入了锁机制。基本的锁类型：共享锁S和排它锁X。</p>
-<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><h2 id="Oracle锁机制"><a href="#Oracle锁机制" class="headerlink" title="Oracle锁机制"></a>Oracle锁机制</h2><p>准备更新中…… </p>
-<p>​    </p>
-]]></content>
-      <categories>
-        <category>Oracle</category>
-      </categories>
-      <tags>
-        <tag>Oracle</tag>
-        <tag>事务&amp;锁</tag>
+        <tag>Linux</tag>
+        <tag>性能优化</tag>
       </tags>
   </entry>
   <entry>
@@ -290,7 +723,7 @@
 </blockquote>
 <p>后续我们重点关注SQL的语句解析和执行计划</p>
 <h3 id="减少硬解析"><a href="#减少硬解析" class="headerlink" title="减少硬解析"></a>减少硬解析</h3><p>观察一下SQL的执行的执行过程</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span> <span class="keyword">from</span> dual; </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span>  <span class="keyword">from</span> dual;</span><br><span class="line"><span class="keyword">Select</span> <span class="keyword">sysdate</span> <span class="keyword">From</span> Dual;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">*对于以上SQL,站在我们开发角度认为他们是相同，但是数据库优化器认为是不同的。</span></span><br><span class="line"><span class="comment">*查询v$sql试图观察实际情况</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">SELECT</span> SQL_TEXT,SQL_ID, FIRST_LOAD_TIME <span class="keyword">FROM</span> V$<span class="keyword">SQL</span>  </span><br><span class="line"><span class="keyword">WHERE</span> SQL_TEXT <span class="keyword">LIKE</span> <span class="string">'%SYSDATE%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> FIRST_LOAD_TIME  <span class="keyword">DESC</span> ;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span> <span class="keyword">from</span> dual; </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">sysdate</span>  <span class="keyword">from</span> dual;</span><br><span class="line"><span class="keyword">Select</span> <span class="keyword">sysdate</span> <span class="keyword">From</span> Dual;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">*对于以上SQL,站在我们开发角度认为他们是相同，但是数据库优化器认为是不同的。</span></span><br><span class="line"><span class="comment">*查询v$sql试图观察实际情况</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">SELECT</span> SQL_TEXT,SQL_ID, FIRST_LOAD_TIME,EXECUTIONS <span class="keyword">FROM</span> V$<span class="keyword">SQL</span>  </span><br><span class="line"><span class="keyword">WHERE</span> SQL_TEXT <span class="keyword">LIKE</span> <span class="string">'% sysdate%'</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> FIRST_LOAD_TIME  <span class="keyword">DESC</span> ;</span><br></pre></td></tr></table></figure>
 
 <p>通常我们可以使用一下这些方式排查硬解析</p>
 <ul>
@@ -429,7 +862,7 @@
 <ul>
 <li><p>CBO是一种比RBO更加合理、可靠的优化器，在ORACLE 10g中完全取代RBO；</p>
 </li>
-<li><p>CBO通过计算各种可能的执行计划的“代价”，即COST，从中选用COST最低的执行方案作为实际运行          方案；</p>
+<li><p>CBO通过计算各种可能的执行计划的“代价”，即COST，从中选用COST最低的执行方案作为实际运行方案；</p>
 </li>
 </ul>
 <p>它依赖数据库对象的统计信息，统计信息的准确与否会影响CBO做出最优的选择，也就是对数据“敏感”。</p>
@@ -731,6 +1164,141 @@
       <tags>
         <tag>Oracle</tag>
         <tag>SQL优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL性能优化案例</title>
+    <url>/Oracle/SQL/Oracle_SQL_optimization/</url>
+    <content><![CDATA[<h1 id="SQL性能优化案例篇"><a href="#SQL性能优化案例篇" class="headerlink" title="SQL性能优化案例篇"></a>SQL性能优化案例篇</h1><h2 id="学会辨别虚假信息"><a href="#学会辨别虚假信息" class="headerlink" title="学会辨别虚假信息"></a>学会辨别虚假信息</h2><p>在日常生活中，我们经常遇到有人说exits比in快，count(1)执行比count(*)快，但事实是真的这样吗？我们自己去进行过实践吗？</p>
+<h3 id="in与exist之争"><a href="#in与exist之争" class="headerlink" title="in与exist之争"></a>in与exist之争</h3><p> 首先创建测试表：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> emp <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> dept <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> emp <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> scott.emp;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> dept <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> scott.dept;</span><br></pre></td></tr></table></figure>
+
+<p> 在Oracle 11g中执行并查看执行计划：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> dept <span class="keyword">where</span> deptno <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="keyword">select</span> deptno <span class="keyword">from</span> emp ) ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> dept <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> ( <span class="keyword">select</span> deptno <span class="keyword">from</span> emp <span class="keyword">where</span>     emp.deptno=dept.deptno) ;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; set autotrace traceonly;</span><br><span class="line">SQL&gt; select * from dept where deptno NOT IN ( select deptno from emp ) ;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; set autotrace traceonly</span><br><span class="line">SQL&gt; select * from dept where deptno NOT IN ( select deptno from emp where deptno is not null) and deptno is not null;</span><br></pre></td></tr></table></figure>
+
+<p>我们发现两个语句的效率是一样的，查看执行计划也是一样的。原来oracle在11g中已经做了优化，所以in和exist的效率是一样的。</p>
+<p>由此我们可以得出结论，在11g中，使用in和exist的效率是一样的，因为他们走的都是比较高效的ANTI算法。而网上所说的in慢于exist是在10g的时候会出现的情况，因为10g的时候在不指定列为非空的情况下，in走的是filter的算法，现对于anti半连接算法比较低效，但是在10g当中sql语句指定不为空，也可走anti算法。比如：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> dept <span class="keyword">where</span> deptno <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="keyword">select</span> deptno <span class="keyword">from</span> emp <span class="keyword">where</span> deptno <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>) <span class="keyword">and</span> deptno <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="count谁最快"><a href="#count谁最快" class="headerlink" title="count谁最快"></a>count谁最快</h3><p> 首先创建测试表：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> <span class="keyword">test</span> <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">test</span> <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">update</span> <span class="keyword">test</span> <span class="keyword">set</span> object_id =<span class="keyword">rownum</span> ;</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+
+<p>  在无索引的情况下，比较count(*)与count(object_id)</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="comment">--查看执行时间</span></span><br><span class="line">SQL&gt; set timing on </span><br><span class="line">SQL&gt; set autotrace traceonly; </span><br><span class="line">SQL&gt; select count(*) from test;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(object_id) from test;</span><br></pre></td></tr></table></figure>
+
+<p>我们在列object_id上创建索引，再次比较count(*)与count(object_id)</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_object_id <span class="keyword">on</span> <span class="keyword">test</span>(object_id);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(*) from test;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(object_id) from test;</span><br></pre></td></tr></table></figure>
+
+<p>发现count(object_id)的速度明显比count(*)高出一大截，难道是因为count(object_id)能用到索引，所以效率才提高了很多？</p>
+<p>我们再修改下object_id的列属性，再次比较count(*)与count(object_id)</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(*) from test;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">SQL&gt; select count(object_id) from test;</span><br></pre></td></tr></table></figure>
+
+<p>结论：</p>
+<p>1）对于上述实验来说，在一个无任何索引的表中count(*)与count(object_id)的性能是一样的；</p>
+<p>2）在某一列有索引但此列可为空的前提下，count(*)比count(object_id)慢，因为count(object_id)用到了索引；</p>
+<p>3）在某一列有索引但此列不为空的前提下count(*)与count(object_id)的性能是一样的；</p>
+<p>另在没有索引的情况下，对不同的列做实验发现：</p>
+<img src="/Oracle/SQL/Oracle_SQL_optimization/sql.png" alt="sql.ping" style="zoom:80%;">
+
+<p>对于oracle优化器来说，count不同的列，统计的时间是不一样的，大致趋势是列越靠后，访问的开销越大，列的偏移量决定访问的性能。而count(*)的开销与偏移量无关。</p>
+<p>因此，在某些场合count(*)反而是最快的。</p>
+<h3 id="表的条件顺序"><a href="#表的条件顺序" class="headerlink" title="表的条件顺序"></a>表的条件顺序</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t1 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t2 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">id</span> ,dbms_random.string(<span class="string">'b'</span>, <span class="number">50</span>) n ,data_object_id data_id <span class="keyword">from</span> dba_objects <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">10000</span>;</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t1.object_id=<span class="number">29</span> <span class="keyword">and</span> t2.data_id&gt;<span class="number">8</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t2.data_id&gt;<span class="number">8</span> <span class="keyword">and</span> t1.object_id=<span class="number">29</span> ;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">--加个关联条件看看，看看</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t1.object_id=t2.id <span class="keyword">and</span> t1.object_id=<span class="number">29</span> <span class="keyword">and</span> t2.data_id&gt;<span class="number">8</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> * <span class="keyword">from</span> t1,t2 <span class="keyword">where</span> t1.object_id=t2.id <span class="keyword">and</span> t2.data_id&gt;<span class="number">8</span> <span class="keyword">and</span> t1.object_id=<span class="number">29</span> ;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：通过上述实验发现，无论有过滤条件的WHERE放在后面还是放在前面，效果是一样的。因此，关于有过滤条件的WHERE放在后面的说法是错误的。</p>
+</blockquote>
+<h3 id="表的连接顺序"><a href="#表的连接顺序" class="headerlink" title="表的连接顺序"></a>表的连接顺序</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--来来来，做一个试验，看看SQL写法中，表的连接顺序是否很重要</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> tab_big;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> tab_small;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tab_big  <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tab_small  <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span> </span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_big,tab_small   ;  </span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_small,tab_big   ;</span><br><span class="line"><span class="comment">---奇怪，以上实验发现性能是一样的，咋回事呢，看来真是谣言啊，这真是恶意传谣吗？</span></span><br><span class="line"></span><br><span class="line"><span class="comment">---大家看看下面的语句，比较一下性能。</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_big,tab_small ;  </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+rule*/</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> tab_small,tab_big ;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：原来表连接顺序的说法早就过时了，在基于规则的时代，小表在后，大表在前确实性能高于小表在前大表在后，现在oracle是基于代价的。性能是一样的。</p>
+</blockquote>
+<h2 id="索引优化的优劣"><a href="#索引优化的优劣" class="headerlink" title="索引优化的优劣"></a>索引优化的优劣</h2><h3 id="索引的优势"><a href="#索引的优势" class="headerlink" title="索引的优势"></a>索引的优势</h3><h4 id="索引优化之回表"><a href="#索引优化之回表" class="headerlink" title="索引优化之回表"></a>索引优化之回表</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--索引回表读（TABLE ACCESS BY INDEX ROWID）的例子</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="comment">--只建一个主键索引，查询所有字段*</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx1_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">--试验1</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t <span class="keyword">where</span> object_id&lt;=<span class="number">5</span>;</span><br><span class="line"><span class="comment">--试验2</span></span><br><span class="line"><span class="comment">--比较消除TABLE ACCESS BY INDEX ROWID回表后的性能，将select * from改为select object_id from </span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> object_id <span class="keyword">from</span> t <span class="keyword">where</span> object_id&lt;=<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">--试验3：通过构造联合索引，再观察一个消除TABLE ACCESS BY INDEX ROWID的例子</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_un_objid_objname <span class="keyword">on</span> t(object_id,object_name);</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span></span><br><span class="line"><span class="keyword">select</span> object_id,object_name <span class="keyword">from</span> t <span class="keyword">where</span> object_id&lt;=<span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：通过观察执行计划，我们发现当不回表的时候，性能更好，因为只在索引当中就查到了我们想要的字段。</p>
+</blockquote>
+<h4 id="索引优化之索引的高度"><a href="#索引优化之索引的高度" class="headerlink" title="索引优化之索引的高度"></a>索引优化之索引的高度</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">20</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t3 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">200</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t4 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">2000</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t5 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">20000</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t6 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">200000</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t7 <span class="keyword">as</span> <span class="keyword">select</span> <span class="keyword">rownum</span> <span class="keyword">as</span> <span class="keyword">id</span> ,<span class="keyword">rownum</span>+<span class="number">1</span> <span class="keyword">as</span> id2,rpad(<span class="string">'*'</span>,<span class="number">1000</span>,<span class="string">'*'</span>) <span class="keyword">as</span> <span class="keyword">contents</span> <span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">level</span>&lt;=<span class="number">2000000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t1 <span class="keyword">on</span> t1(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t2 <span class="keyword">on</span> t2(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t3 <span class="keyword">on</span> t3(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t4 <span class="keyword">on</span> t4(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t5 <span class="keyword">on</span> t5(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t6 <span class="keyword">on</span> t6(<span class="keyword">id</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_id_t7 <span class="keyword">on</span> t7(<span class="keyword">id</span>);</span><br><span class="line"><span class="comment">--观察索引的高度的不同</span></span><br><span class="line"><span class="keyword">select</span> index_name,<span class="comment">--索引名字</span></span><br><span class="line">          blevel,<span class="comment">--索引高度</span></span><br><span class="line">          leaf_blocks,<span class="comment">--索引叶子占用块</span></span><br><span class="line">          num_rows,<span class="comment">--行数</span></span><br><span class="line">          distinct_keys,</span><br><span class="line">          clustering_factor</span><br><span class="line">     <span class="keyword">from</span> user_ind_statistics</span><br><span class="line">    <span class="keyword">where</span> table_name <span class="keyword">in</span>( <span class="string">'T1'</span>,<span class="string">'T2'</span>,<span class="string">'T3'</span>,<span class="string">'T4'</span>,<span class="string">'T5'</span>,<span class="string">'T6'</span>,<span class="string">'T7'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">--执行    </span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly <span class="keyword">statistics</span></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="comment">--注意观察逻辑读的次数，另外每条语句执行2遍以上，观察第2遍的结果。为了消除物理读以及递归调用。</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t3 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t4 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t5 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t6 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t7 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br><span class="line"><span class="comment">--观察全表扫描的结果</span></span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t1)*/</span> * <span class="keyword">from</span> t1 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t2)*/</span> * <span class="keyword">from</span> t2 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t3)*/</span> * <span class="keyword">from</span> t3 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t4)*/</span> * <span class="keyword">from</span> t4 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t5)*/</span> * <span class="keyword">from</span> t5 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t6)*/</span> * <span class="keyword">from</span> t6 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>; </span><br><span class="line"><span class="keyword">select</span> <span class="comment">/*+full(t7)*/</span> * <span class="keyword">from</span> t7 <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：当索引的高度相同时，使用索引查询，发现产生逻辑读的次数一般相同；而使用全表扫描的差异巨大。但是请注意这是建立在返回一条数据或者少数数据的前体下，如果返回大量的数据，使用索引反而比使用全表扫描更慢。另外，在本案例中，大家也许觉得两百万数据量在全表扫描时执行速度也很快，那是因为这些表字段很少，oracle不会占用很多的数据块，当表的字段同样类型的增加到40个乃至更多，速度自然而然就慢了，因为遍历的块更多了。所以我们有时可以删除一些不需要的字段从而使某些需要全表扫描的场合性能提高。</p>
+</blockquote>
+<h4 id="索引优化之count，sum，avg"><a href="#索引优化之count，sum，avg" class="headerlink" title="索引优化之count，sum，avg"></a>索引优化之count，sum，avg</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="keyword">rownum</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx1_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="keyword">set</span> autotrace <span class="keyword">on</span></span><br><span class="line"><span class="comment">--此时走的是全表扫描</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t;</span><br><span class="line"><span class="comment">--此时走的是索引</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t <span class="keyword">where</span> object_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="comment">--也可以不加is not null，直接把列的属性设置为not null，也成，继续试验如下：</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t;</span><br><span class="line"><span class="comment">--如果是主键就无需定义列是否允许为空了。因为主键本身就不能为空，此时也可走索引</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--sum以及avg同样的套路，可以自行实验，至少在11g当中是这样</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：当我们在使用count函数，或者是sum以及avg聚合函数时，当此列有索引的时候，要注意此列的取值是否可为空，这关系到是否使用索引；当没有索引时，根据实际情况考虑是否添加索引。</p>
+</blockquote>
+<h4 id="索引优化之distinct"><a href="#索引优化之distinct" class="headerlink" title="索引优化之distinct"></a>索引优化之distinct</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="keyword">rownum</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> T <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="number">2</span>;</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="number">3</span> <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">25000</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="comment">--测试1</span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">distinct</span> object_id <span class="keyword">from</span> t ;</span><br><span class="line"><span class="comment">--测试2</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="keyword">select</span>  <span class="comment">/*+index(t)*/</span> <span class="keyword">distinct</span> object_id <span class="keyword">from</span> t ;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：经测试发现，执行计划当中并没有显示其发生了排序操作，那是因为在oracle10g的R2环境之后，DISTINCT由于其 HASH UNIQUE的算法导致其不会产生排序，不过虽然没有排序，通过观察执行计划当中的TempSpc可知distinct消耗PGA内存进行HASH UNIQUE运算；接下来看看建了索引后的情况，TempSpc关键字并没有消失，因此网上许多所说的会消失是不正确的，至少在oracle11g（11.2.0.1.0）当中并没有消失，但是COST确实下降许多；不过在现实中，DISTINCT往往靠索引来优化效果并不是很明显，因为大多数用到DISTINCT的地方是因为我们的表中有重复记录，因此，我们一般首先要考虑的是为什么会重复。</p>
+</blockquote>
+<h4 id="索引优化之union"><a href="#索引优化之union" class="headerlink" title="索引优化之union"></a>索引优化之union</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">----UNION 是需要排序的</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t1 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t1 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> object_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t1 <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t2 <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t2 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> object_id <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t2 <span class="keyword">modify</span> OBJECT_ID <span class="keyword">not</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> object_id <span class="keyword">from</span> t1</span><br><span class="line"><span class="keyword">union</span></span><br><span class="line"><span class="keyword">select</span> object_id <span class="keyword">from</span> t2;</span><br><span class="line"></span><br><span class="line"><span class="comment">--发现索引无法消除UNION 排序</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t1_object_id <span class="keyword">on</span> t1(object_id);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_object_id <span class="keyword">on</span> t2(object_id);</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t1</span><br><span class="line"><span class="keyword">union</span></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t2;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：使用UNION是会产生排序的，使用索引无法消除UNION 排序，因此我们在使用的时候要确定是否有使用的 必要，如果表中没有重复记录，则使用UNION ALL即可。</p>
+</blockquote>
+<h4 id="索引优化之order-by"><a href="#索引优化之order-by" class="headerlink" title="索引优化之order by"></a>索引优化之order by</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects ;</span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="comment">--以下语句没有索引又有order by ，必然产生排序</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> object_id;</span><br><span class="line"><span class="comment">---新增索引后，Oracle就有可能利用索引本身就有序的特点，利用索引来避免排序，如下：</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> object_id;</span><br><span class="line"><span class="comment">--如下情况Oracle肯定毫不犹豫的选择用索引,因为回表取消了 !      </span></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span> <span class="keyword">order</span> <span class="keyword">by</span> object_id;</span><br><span class="line"><span class="comment">--如下情况，就算有索引，oracle也不会用索引</span></span><br><span class="line"><span class="keyword">select</span>  object_id <span class="keyword">from</span> t <span class="keyword">where</span> object_id&gt;<span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="索引的劣势"><a href="#索引的劣势" class="headerlink" title="索引的劣势"></a>索引的劣势</h3><h4 id="位图索引遭遇更新苦不堪言"><a href="#位图索引遭遇更新苦不堪言" class="headerlink" title="位图索引遭遇更新苦不堪言"></a>位图索引遭遇更新苦不堪言</h4><p>测试数据准备</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t </span><br><span class="line">(name_id,</span><br><span class="line"> gender <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line"> location <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line"> age_group <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line"> <span class="keyword">data</span></span><br><span class="line"> )</span><br><span class="line"> <span class="keyword">as</span></span><br><span class="line"> <span class="keyword">select</span> <span class="keyword">rownum</span>,</span><br><span class="line">        <span class="keyword">decode</span>(<span class="keyword">ceil</span>(dbms_random.value(<span class="number">0</span>,<span class="number">2</span>)),</span><br><span class="line">               <span class="number">1</span>,<span class="string">'M'</span>,</span><br><span class="line">               <span class="number">2</span>,<span class="string">'F'</span>)gender,</span><br><span class="line">        <span class="keyword">ceil</span>(dbms_random.value(<span class="number">1</span>,<span class="number">50</span>)) location,</span><br><span class="line">        <span class="keyword">decode</span>(<span class="keyword">ceil</span>(dbms_random.value(<span class="number">0</span>,<span class="number">3</span>)),</span><br><span class="line">               <span class="number">1</span>,<span class="string">'child'</span>,</span><br><span class="line">               <span class="number">2</span>,<span class="string">'young'</span>,</span><br><span class="line">               <span class="number">3</span>,<span class="string">'middle_age'</span>,</span><br><span class="line">               <span class="number">4</span>,<span class="string">'old'</span>),</span><br><span class="line">         rpad(<span class="string">'*'</span>,<span class="number">400</span>,<span class="string">'*'</span>)</span><br><span class="line"><span class="keyword">from</span> dual <span class="keyword">connect</span> <span class="keyword">by</span> <span class="keyword">rownum</span>&lt;=<span class="number">100000</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">bitmap</span> <span class="keyword">index</span> gender_idx <span class="keyword">on</span> t(gender);</span><br><span class="line"><span class="comment">---实验一：</span></span><br><span class="line"><span class="comment">--SESSION 1 不提交</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t(name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100001</span>,<span class="string">'M'</span>,<span class="number">45</span>,<span class="string">'child'</span>,rpad(<span class="string">'*'</span>,<span class="number">20</span>,<span class="string">'*'</span>));</span><br><span class="line"><span class="comment">--SESSION 2</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t(name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100002</span>,<span class="string">'M'</span>,<span class="number">46</span>, <span class="string">'young'</span>, rpad(<span class="string">'*'</span>,<span class="number">20</span>,<span class="string">'*'</span>));</span><br><span class="line"><span class="comment">---实验二：</span></span><br><span class="line"><span class="comment">--SESSION 1（持有者）</span></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'M'</span> <span class="keyword">AND</span> LOCATION=<span class="number">25</span>;</span><br><span class="line"><span class="comment">---SESSION 2(其他会话) 插入带M的记录就立即被阻挡，以下三条语句都会被阻止</span></span><br><span class="line"><span class="keyword">insert</span>  <span class="keyword">into</span> t (name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100001</span>,<span class="string">'M'</span>,<span class="number">78</span>, <span class="string">'young'</span>,<span class="string">'TTT'</span>);</span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> gender=<span class="string">'M'</span> <span class="keyword">WHERE</span> LOCATION=<span class="number">25</span>;</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'M'</span>;</span><br><span class="line"><span class="comment">--实验三：</span></span><br><span class="line"><span class="comment">--SESSION 1（持有者）</span></span><br><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'M'</span> <span class="keyword">AND</span> LOCATION=<span class="number">25</span>;</span><br><span class="line"><span class="comment">---SESSION 2(其他会话)</span></span><br><span class="line"><span class="comment">--以下是可以进行不受阻碍的</span></span><br><span class="line"><span class="keyword">insert</span>  <span class="keyword">into</span> t (name_id,gender,location ,age_group ,<span class="keyword">data</span>) <span class="keyword">values</span> (<span class="number">100001</span>,<span class="string">'F'</span>,<span class="number">78</span>, <span class="string">'young'</span>,<span class="string">'TTT'</span>);</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span>  t <span class="keyword">where</span> gender=<span class="string">'F'</span> ;</span><br><span class="line"><span class="keyword">UPDATE</span> T <span class="keyword">SET</span> LOCATION=<span class="number">100</span> <span class="keyword">WHERE</span> <span class="keyword">ROWID</span> <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="keyword">SELECT</span> <span class="keyword">ROWID</span> <span class="keyword">FROM</span> T <span class="keyword">WHERE</span> GENDER=<span class="string">'F'</span> <span class="keyword">AND</span> LOCATION=<span class="number">25</span>) ;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：当你对于某一张表的一个字段加了位图索引之后，对于此表的操作，目前可以说几乎只能是单进程单用户操作了，这样的操作显然不支持高并发，对于整体系统并没有好处。因此要注意位图索引的使用场景。</p>
+</blockquote>
+<h4 id="建索引过程会产生全表锁"><a href="#建索引过程会产生全表锁" class="headerlink" title="建索引过程会产生全表锁"></a>建索引过程会产生全表锁</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> t <span class="keyword">purge</span>;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="comment">--尽可能插入多点数据，不然操作太快来不及发现</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t  <span class="keyword">select</span> * <span class="keyword">from</span> t;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">--SESSION 1</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_object_id <span class="keyword">on</span> t(object_id);</span><br><span class="line"><span class="comment">--SESSION 2</span></span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> object_id=<span class="number">99999</span> <span class="keyword">where</span> object_id=<span class="number">8</span>;</span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> t <span class="keyword">where</span> object_id=<span class="number">8</span>;</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span>  t (OWNER) <span class="keyword">values</span> (<span class="string">'111'</span>);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：经上述实验可得，普通的对表建索引将会导致针对该表的更新操作无法进行，需要等待索引建完。更新操作将会被建索引动作阻塞。SESSION2 的三个操作，均需要SESSION1的索引建完之后才能执行。因此，在我们平时建索引的时候，尤其是对于一些大表在生产系统建立索引的时候一定要在夜里业务不繁忙的时候进行。</p>
+</blockquote>
+<h4 id="索引过多影响插入"><a href="#索引过多影响插入" class="headerlink" title="索引过多影响插入"></a>索引过多影响插入</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test1 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test2 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> test3 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_owner <span class="keyword">on</span> test1(owner);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_object_name <span class="keyword">on</span> test1(object_name);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_data_obj_id <span class="keyword">on</span> test1(data_object_id);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_created <span class="keyword">on</span> test1(created);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_last_ddl_time <span class="keyword">on</span> test1(last_ddl_time);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_status <span class="keyword">on</span> test1(<span class="keyword">status</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_sta <span class="keyword">on</span> test2(<span class="keyword">status</span>);</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_objid <span class="keyword">on</span> test2(object_id);</span><br><span class="line"><span class="keyword">set</span> timing <span class="keyword">on</span> </span><br><span class="line"><span class="comment">--语句1(test1表有6个索引）</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test1 <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--语句2(test2表有2个索引）</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test2 <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">commit</span>;</span><br><span class="line"><span class="comment">--语句3(test3表有无索引）</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> test3 <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects;</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：索引越多，插入速度越慢。因为有了索引，更新了记录就更新了索引，就要维护索引那种有序排列的结构，开销比较大。因此我们在项目中建索引要考虑全面，并且建索引要规范。而我们在项目中若遇到大批量的向大表中插入数据时，我们可以先禁用索引，插入完成之后再重建索引，这样效率会比有索引插入快。因为此时重建索引是一个批量的动作，而不是单次插入单次维护索引。</p>
+</blockquote>
+<h2 id="表连接优化"><a href="#表连接优化" class="headerlink" title="表连接优化"></a>表连接优化</h2><h4 id="NL连接（Nest-Loop）"><a href="#NL连接（Nest-Loop）" class="headerlink" title="NL连接（Nest Loop）"></a>NL连接（Nest Loop）</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t1 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t2 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)); </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t2 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     t1_id <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)); </span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t1 <span class="keyword">SELECT</span> <span class="keyword">rownum</span>,<span class="keyword">rownum</span>, dbms_random.string(<span class="string">'a'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual  <span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">10000</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t2 <span class="keyword">SELECT</span> <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, dbms_random.string(<span class="string">'b'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual <span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">1000000</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">COMMIT</span>; </span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_nl(t2) */</span> * <span class="keyword">FROM</span> t1,t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">AND</span> t1.n= <span class="number">19</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="comment">--收集统计信息.</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> statistics_level=<span class="keyword">all</span> ;</span><br><span class="line"></span><br><span class="line"><span class="comment">---1.对t1表的限制条件建索引</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> t1_n <span class="keyword">ON</span> t1 (n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_nl(t2) */</span> * <span class="keyword">FROM</span> t1,t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">AND</span> t1.n= <span class="number">19</span></span><br><span class="line"><span class="comment">--查看执行计划</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">---2.在1的基础上对被驱动表t2表的连接条件建索引</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> t2_t1_id <span class="keyword">ON</span> t2(t1_id);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_nl(t2) */</span> * <span class="keyword">FROM</span> t1,t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">AND</span> t1.n= <span class="number">19</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">---3.确保小结果集先驱动</span></span><br><span class="line"><span class="comment">--我们构造如下：假如oracle的统计信息不准确</span></span><br><span class="line"><span class="comment">--以下故意错乱颠倒，欺骗Oracle说T1表是大表而T2表是小表。</span></span><br><span class="line">EXEC  dbms_stats.SET_table_stats(user, 'T1', numrows =&gt; 20000000  ,numblks =&gt; 1000000);</span><br><span class="line">EXEC  dbms_stats.SET_table_stats(user, 'T2', numrows =&gt; 1  ,numblks =&gt; 1);</span><br><span class="line"><span class="comment">--此时t2表为驱动表，t1表为被驱动表，此时发现性能大幅度下降</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id  t2.t1_id <span class="keyword">AND</span> t1.n &lt;= <span class="number">19</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结论：通过以上实验的执行计划可以看出，当使用NL连接的时候，我们保证以上三点，会使sql达到比较好的性能。</p>
+<p>为什么在嵌套循环的驱动表的限制条件建索引,被驱动表的连接条件建索引？<br>驱动表的限制条件建索引的目的是为了减少扫描驱动表的时间。如果在驱动表的连接条件建索引就没有任何意义，所有列关联到另一表的所有列，等同于每条记录都要进行关联，而在驱动表的限制条件建了索引之后，只快速返回一条或者几条记录，然后在传递给被驱动表的连接条件列，一般情况下被驱动表对应的驱动表的记录返回的不多，所以在被驱动表的连接条件建立索引是有必要的。</p>
+</blockquote>
+<h4 id="HASH-JOIN连接"><a href="#HASH-JOIN连接" class="headerlink" title="HASH JOIN连接"></a>HASH JOIN连接</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--环境构造</span></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t1 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> t2 <span class="keyword">CASCADE</span> <span class="keyword">CONSTRAINTS</span> <span class="keyword">PURGE</span>; </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)</span><br><span class="line">   ); </span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t2 (</span><br><span class="line">     <span class="keyword">id</span> <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     t1_id <span class="built_in">NUMBER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">     n <span class="built_in">NUMBER</span>,</span><br><span class="line">     <span class="keyword">contents</span> <span class="built_in">VARCHAR2</span>(<span class="number">4000</span>)</span><br><span class="line">   );  </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t1 <span class="keyword">SELECT</span>  <span class="keyword">rownum</span>,  <span class="keyword">rownum</span>, dbms_random.string(<span class="string">'a'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual </span><br><span class="line"><span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">10000</span></span><br><span class="line">      <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> t2 <span class="keyword">SELECT</span> <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, <span class="keyword">rownum</span>, dbms_random.string(<span class="string">'b'</span>, <span class="number">50</span>) <span class="keyword">FROM</span> dual <span class="keyword">CONNECT</span> <span class="keyword">BY</span> <span class="keyword">level</span> &lt;= <span class="number">100000</span></span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> dbms_random.random; </span><br><span class="line"><span class="keyword">COMMIT</span>; </span><br><span class="line"></span><br><span class="line"><span class="comment">--1.两表的限制条件有索引(注：针对索引条件返回记录很少的情况）！</span></span><br><span class="line"><span class="comment">--首先测试Hash Join两表的限制条件皆无索引的情况</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> statistics_level=<span class="keyword">all</span> ;</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--在t1表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t1_n <span class="keyword">on</span> t1(n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--在t2表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_n <span class="keyword">on</span> t2(n);   </span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--2.确保小结果集先驱动</span></span><br><span class="line"><span class="comment">--t1为驱动表</span></span><br><span class="line"><span class="keyword">SELECT</span>  * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--t2为驱动表</span></span><br><span class="line"><span class="keyword">SELECT</span>  <span class="comment">/*+ leading(t2) use_hash(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--结论：在2的实验中发现，虽然buffers的变化可能很小甚至一样，但是userd-mem却差异比较明显。说明排序尺寸差异明显。在结合时间发现，两者的时间差异也比较明显。大表为驱动表所耗时间较长。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--3.确保PGA尺寸足够</span></span><br><span class="line"><span class="comment">--因为HASH JOIN连接会使用到PGA内存区域的hash area，若内存不够，会用到磁盘的空间。</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Merge-Sort-Join连接"><a href="#Merge-Sort-Join连接" class="headerlink" title="Merge Sort Join连接"></a>Merge Sort Join连接</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--环境构造同上hash join</span></span><br><span class="line"><span class="comment">--1.两表的限制条件有索引</span></span><br><span class="line"><span class="comment">--两表限制条件皆无索引的情况</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> statistics_level=<span class="keyword">all</span> ;</span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_merge(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--t1表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t1_n <span class="keyword">on</span> t1(n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_merge(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--t2表的限制条件建索引</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t2_n <span class="keyword">on</span> t2(n);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t2) use_merge(t1)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id <span class="keyword">and</span> t1.n=<span class="number">19</span> <span class="keyword">and</span> t2.n=<span class="number">12</span>;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor(<span class="literal">null</span>,<span class="literal">null</span>,<span class="string">'allstats last'</span>));</span><br><span class="line"><span class="comment">--2.连接字段有索引，争取利用索引来消除排序（可惜的是，在11g以及之前版本，ORACLE算法的限制，只能避免一次排序，后续版本未知，需要试验）</span></span><br><span class="line"><span class="comment">--两表的连接条件都无索引的情况，有两次排序：</span></span><br><span class="line"><span class="keyword">set</span> linesize <span class="number">1000</span></span><br><span class="line"><span class="keyword">set</span> autotrace traceonly</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_merge(t2)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="comment">--t1表建索引，发现排序消除了一个</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_t1_id <span class="keyword">ON</span> t1(<span class="keyword">id</span>); </span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_merge(t2)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="comment">--在t2表的连接条件建索引，发现排序依然有一个，无法消除</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_t2_t1_id <span class="keyword">ON</span> t2(t1_id);   </span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ leading(t1) use_merge(t2)*/</span> * <span class="keyword">FROM</span> t1, t2 <span class="keyword">WHERE</span> t1.id = t2.t1_id;</span><br><span class="line"><span class="comment">--3.避免多余列致排序尺寸过大（取部分字段）</span></span><br><span class="line"><span class="comment">--对于NL以及hash连接来说，只取部分列性能基本不会有什么变化</span></span><br><span class="line"><span class="comment">--4.确保PGA尺寸足够</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Oracle</category>
+        <category>SQL</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
+        <tag>SQL优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Oracle事务&amp;锁</title>
+    <url>/Oracle/Oracle_Tran/</url>
+    <content><![CDATA[<h1 id="Oracle事务-amp-锁"><a href="#Oracle事务-amp-锁" class="headerlink" title="Oracle事务&amp;锁"></a>Oracle事务&amp;锁</h1><h2 id="事务特性"><a href="#事务特性" class="headerlink" title="事务特性"></a>事务特性</h2><p>在关系型数据库（BD2,Oracle,Sybase,Informix和Sql Server）最小的恢复和交易单位为一个事务，事务具有ACID（原子性，一致性，隔离性，永久性）特征。关系数据库为了确保并发用户在存取同一数据库对象的正确性（即无脏读，无丢失更新，可重复读，无幻读），数据库中引入了锁机制。基本的锁类型：共享锁S和排它锁X。</p>
+<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><h2 id="Oracle锁机制"><a href="#Oracle锁机制" class="headerlink" title="Oracle锁机制"></a>Oracle锁机制</h2><p>准备更新中…… </p>
+<p>​    </p>
+]]></content>
+      <categories>
+        <category>Oracle</category>
+      </categories>
+      <tags>
+        <tag>Oracle</tag>
+        <tag>事务&amp;锁</tag>
       </tags>
   </entry>
 </search>
