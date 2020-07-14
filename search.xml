@@ -574,6 +574,59 @@
       </tags>
   </entry>
   <entry>
+    <title>CPU使用率过高问题排查</title>
+    <url>/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/CPU_troubleshoot/</url>
+    <content><![CDATA[<h1 id="CPU使用率过高问题排查"><a href="#CPU使用率过高问题排查" class="headerlink" title="CPU使用率过高问题排查"></a>CPU使用率过高问题排查</h1><blockquote>
+<p>一个应用占用CPU很高，除了确实是计算密集型应用之外，通常原因都是出现了死循环。<br>下面我们将一步步定位问题以及排查思路。</p>
+</blockquote>
+<h2 id="一、定位占用cpu高的进程"><a href="#一、定位占用cpu高的进程" class="headerlink" title="一、定位占用cpu高的进程"></a>一、定位占用cpu高的进程</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#linux下使用top</span><br><span class="line">top</span><br><span class="line">#AIX下使用topas</span><br><span class="line">topas</span><br></pre></td></tr></table></figure>
+
+<img src="/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/CPU_troubleshoot/image-20200714103622358.png" alt="image-20200714103622358" style="zoom:70%;"> 
+
+<p>通过上图可以明显看出进程PID6359占用cpu过高，明显存在问题，定位到了进程id。</p>
+<p>可以使用以下命令top -p pid只观察此进程的CPU和内存以及负载情况。</p>
+<h2 id="二、定位进程中每个线程占用cpu情况"><a href="#二、定位进程中每个线程占用cpu情况" class="headerlink" title="二、定位进程中每个线程占用cpu情况"></a>二、定位进程中每个线程占用cpu情况</h2><p><strong>1. 使用top查看进程的每一个线程占用CPU情况</strong></p>
+ <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">top -Hp pid</span><br></pre></td></tr></table></figure>
+
+<img src="/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/CPU_troubleshoot/image-20200714103744375.png" alt="image-20200714103744375" style="zoom:70%;"> 
+
+<p>通过上图可以看出线程PID6360CPU占用率最高，接下来定位该线程的代码是否出现异常导致cpu占用过高。</p>
+<p><strong>2. 使用ps查看进程的每一个线程占用CPU情况</strong></p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">ps -mp pid -o THREAD,tid,time | sort -rn</span><br></pre></td></tr></table></figure>
+
+<img src="/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/CPU_troubleshoot/image-20200714104157960.png" alt="image-20200714104157960" style="zoom:80%;"> 
+
+<h2 id="三、定位线程Dump定位程序问题"><a href="#三、定位线程Dump定位程序问题" class="headerlink" title="三、定位线程Dump定位程序问题"></a>三、定位线程Dump定位程序问题</h2><p><strong>1. 生产线程Dump文件</strong></p>
+<ul>
+<li><p>使用jstack命令定位问题代码</p>
+<blockquote>
+<p>#输出线程dump文件用于分析<br>jstack pid &gt;jstack.txt</p>
+</blockquote>
+</li>
+<li><p>用Kill -3 pid 发现信号生成</p>
+<blockquote>
+<p>  一般是生产在nohup文件 、AIX会生成javacore关键字文件（一般是生产在程序启动目录下）</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>2.通过上一步定位线程较高的pid转换为16进制。</strong></p>
+<p>printf “%x\n” 6360   为181d</p>
+<p><strong>3.查找线程dump文件中线程执行的代码</strong></p>
+<img src="/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/CPU_troubleshoot/image-20200714110322979.png" alt="image-20200714110322979" style="zoom:60%;"> 
+
+<p><strong>4.通过程序进行定位对应的执行代码</strong></p>
+<p>发现代码中while循环无法结束，一直抢占cpu，导致程序cpu使用过高，修改代码即可。</p>
+<img src="/Linux/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/CPU_troubleshoot/image-20200714105228482.png" alt="image-20200714105228482" style="zoom:50%;"> ]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>性能优化</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>性能优化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>你真的了解“SQL”吗？</title>
     <url>/Oracle/SQL-Oracle/</url>
     <content><![CDATA[<h1 id="SQL优化思路-Oracle篇"><a href="#SQL优化思路-Oracle篇" class="headerlink" title="SQL优化思路-Oracle篇"></a>SQL优化思路-Oracle篇</h1><p><strong>为什么要重点提及SQL优化？</strong></p>
