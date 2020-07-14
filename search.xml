@@ -603,7 +603,7 @@
 <p>#输出线程dump文件用于分析<br>jstack pid &gt;jstack.txt</p>
 </blockquote>
 </li>
-<li><p>用Kill -3 pid 发现信号生成</p>
+<li><p>用Kill -3 pid 生成</p>
 <blockquote>
 <p>  一般是生产在nohup文件 、AIX会生成javacore关键字文件（一般是生产在程序启动目录下）</p>
 </blockquote>
