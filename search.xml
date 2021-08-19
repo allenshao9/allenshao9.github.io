@@ -461,7 +461,7 @@
 <p>如果仔细看了代码分析的话，其实很容易知道了，在 bean 实例化完成、属性注入完成之后，会执行回调方法，具体请参见类 AbstractAutowireCapableBeanFactory#initBean 方法。</p>
 <p>首先会回调几个实现了 Aware 接口的 bean，然后就开始回调 BeanPostProcessor 的 postProcessBeforeInitialization 方法，之后是回调 init-method，然后再回调 BeanPostProcessor 的 postProcessAfterInitialization 方法。</p>
 <hr>
-<p>本文参考的文章:</p>
+<p>本文摘自以下链接:</p>
 <pre><code>https://javadoop.com/post/spring-ioc</code></pre>]]></content>
       <categories>
         <category>open-source</category>
