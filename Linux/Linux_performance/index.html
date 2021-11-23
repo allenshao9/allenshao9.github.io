@@ -97,7 +97,7 @@
 <meta property="og:image" content="https://ysshao.cn/Linux/Linux_performance/tcpconn.png">
 <meta property="og:image" content="https://ysshao.cn/Linux/Linux_performance/tcpclose.png">
 <meta property="article:published_time" content="2020-06-06T06:11:30.000Z">
-<meta property="article:modified_time" content="2021-11-23T12:44:29.234Z">
+<meta property="article:modified_time" content="2021-11-23T12:47:11.620Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="性能优化">
@@ -1009,8 +1009,6 @@
 <img src="/Linux/Linux_performance/tcpclose.png" alt="在这里插入图片描述" style="zoom:80%;">
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">LISTEN：侦听来自远方的TCP端口的连接请求</span><br><span class="line">SYN-SENT：再发送连接请求后等待匹配的连接请求（如果有大量这样的状态包，检查是否中招了）</span><br><span class="line">SYN-RECEIVED：再收到和发送一个连接请求后等待对方对连接请求的确认（如有大量此状态估计被flood攻击了）</span><br><span class="line">ESTABLISHED：代表一个打开的连接</span><br><span class="line">FIN-WAIT-1：等待远程TCP连接中断请求，或先前的连接中断请求的确认</span><br><span class="line">FIN-WAIT-2：从远程TCP等待连接中断请求</span><br><span class="line">CLOSE-WAIT：等待从本地用户发来的连接中断请求</span><br><span class="line">CLOSING：等待远程TCP对连接中断的确认</span><br><span class="line">LAST-ACK：等待原来的发向远程TCP的连接中断请求的确认（不是什么好东西，此项出现，检查是否被攻击）</span><br><span class="line">TIME-WAIT：等待足够的时间以确保远程TCP接收到连接中断请求的确认</span><br><span class="line">CLOSED：没有任何连接状态</span><br></pre></td></tr></table></figure>
-
-
 
 <hr>
 <p>本文参考的文章:</p>
