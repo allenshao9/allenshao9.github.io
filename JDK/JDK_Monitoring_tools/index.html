@@ -89,19 +89,19 @@
 <meta property="og:url" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/index.html">
 <meta property="og:site_name" content="Ysshao&#39;Blog">
 <meta property="og:description" content="JDK监控和故障处理工具为了便于我们分析JVM虚拟机性能与诊断故障，java自带了命令行工具； JDK 命令行工具   名称 功能描述    jcmd 查看Java进程的类、线程、JVM属性等信息   jps 显示当前所有java进程pid的命令   jinfo 查看虚拟机的配置信息   jstat 监视虚拟机各种运行状态信息   jmap 生成堆转储快照、查看JVM信息   jstack 生成虚">
-<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124102216135.png">
-<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124105947939.png">
-<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124110021595.png">
-<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124111644645.png">
-<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112025332.png">
-<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112312937.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124102216135.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124105947939.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124110021595.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124111644645.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124112025332.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124112312937.png">
 <meta property="article:published_time" content="2021-11-24T06:40:00.000Z">
-<meta property="article:modified_time" content="2021-11-24T06:41:28.594Z">
+<meta property="article:modified_time" content="2021-11-24T06:53:19.753Z">
 <meta property="article:author" content="ysshao">
 <meta property="article:tag" content="性能优化">
 <meta property="article:tag" content="JDK">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124102216135.png">
+<meta name="twitter:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/image-20211124102216135.png">
 
 
 
@@ -719,12 +719,14 @@
 <p><code>jstack -l pid</code>查看线程堆栈信息</p>
 <p><code>jstack -l pid &gt; javacore_pid.txt</code> 输出线程堆栈信息到文件。</p>
 <h2 id="JDK-可视化分析工具"><a href="#JDK-可视化分析工具" class="headerlink" title="JDK 可视化分析工具"></a>JDK 可视化分析工具</h2><h3 id="JConsole"><a href="#JConsole" class="headerlink" title="JConsole"></a>JConsole</h3><p>Jconsole是JDK自带的监控工具，在JDK/bin目录下可以找到（jconsole.exe）。它用于连接正在运行的本地或者远程的JVM，对运行在java应用程序的资源消耗和性能进行监控，并画出大量的图表，提供强大的可视化界面。而且本身占用的服务器内存很小，甚至可以说几乎不消耗。</p>
-<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124102216135.png" alt="image-20211124102216135"></p>
+<img src="/JDK/JDK_Monitoring_tools/image-20211124102216135.png" alt="image-20211124102216135" style="zoom:70%;">
+
 <blockquote>
 <p>如果需要使用 JConsole 连接远程进程，可以在远程 Java 程序启动时加上下面这些参数:</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-Djava.rmi.server.hostname=ip</span><br><span class="line">-Dcom.sun.management.jmxremote.port=60001   //监控的端口号</span><br><span class="line">-Dcom.sun.management.jmxremote.authenticate=false   //关闭认证</span><br><span class="line">-Dcom.sun.management.jmxremote.ssl=false</span><br></pre></td></tr></table></figure>
 </blockquote>
-<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124105947939.png" alt="image-20211124105947939"></p>
+<img src="/JDK/JDK_Monitoring_tools/image-20211124105947939.png" alt="image-20211124105947939" style="zoom:70%;">
+
 <p>Jconsole能捕获到以下信息：</p>
 <ol>
 <li>概述 － JVM概述和一些监控变量的信息</li>
@@ -736,7 +738,8 @@
 </ol>
 <h3 id="Visual-VM"><a href="#Visual-VM" class="headerlink" title="Visual VM"></a>Visual VM</h3><p>VisualVM 是一款免费的，集成了多个 JDK 命令行工具的可视化工具，JDK/bin目录下可以找到（jvisualvm.exe）它能为您提供强大的分析能力，对 Java 应用程序做性能分析和调优。这些功能包括生成和分析海量数据、跟踪内存泄漏、监控垃圾回收器、执行内存和 CPU 分析，同时它还支持在 MBeans 上进行浏览和操作。本文主要介绍如何使用 VisualVM 进行性能分析及调优。</p>
 <p>远程连接方式同JConsole。需要监控的进程添加jvm参数。</p>
-<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124110021595.png" alt="image-20211124110021595"></p>
+<img src="/JDK/JDK_Monitoring_tools/image-20211124110021595.png" alt="image-20211124110021595" style="zoom:70%;">
+
 <p>VisualVM 可提供</p>
 <p><strong>监视</strong>：监视是一种用来查看应用程序运行时行为的一般方法。通常会有多个视图（View）分别实时地显示 CPU 使用情况、内存使用情况、线程状态以及其他一些有用的信息，以便用户能很快地发现问题的关键所在。</p>
 <p>转储：性能分析工具从内存中获得当前状态数据并存储到文件用于静态的性能分析。Java 程序是通过在启动 Java 程序时添加适当的条件参数来触发转储操作的。它包括以下三种：</p>
@@ -774,19 +777,21 @@
 </ul>
 <p>linux下安装：<code>wget https://alibaba.github.io/arthas/arthas-boot.jar</code></p>
 <p>运行<code>java -jar arthas-boot.jar</code></p>
-<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124111644645.png" alt="image-20211124111644645"></p>
+<img src="/JDK/JDK_Monitoring_tools/image-20211124111644645.png" alt="image-20211124111644645" style="zoom:70%;">
+
 <ul>
 <li><strong>整体监控数据</strong></li>
 </ul>
 <p>在arthas的命令行界面，输入<code>dashboard</code>，会实时展示当前进程的的多线程状态、Jvm各区域、GC情况等信息</p>
-<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112025332.png" alt="image-20211124112025332"></p>
+<img src="/JDK/JDK_Monitoring_tools/image-20211124112025332.png" alt="image-20211124112025332" style="zoom:70%;">
+
 <ul>
 <li><p><strong>查看线程监控数据</strong></p>
 <p>常用参数</p>
 <p>输入thread会显示所有线程的状态信息</p>
 <p>输入thread -n 3会显示当前最忙的3个线程，可以用来排查线程CPU消耗</p>
 <p>输入thread -b 会显示当前处于BLOCKED状态的线程，可以排查线程锁的问题</p>
-<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112312937.png" alt="image-20211124112312937"></p>
+<img src="/JDK/JDK_Monitoring_tools/image-20211124112312937.png" alt="image-20211124112312937" style="zoom:70%;">
 </li>
 <li><p><strong>查看JVM数据</strong></p>
 <p>输入jvm，查看jvm详细的性能数据</p>
