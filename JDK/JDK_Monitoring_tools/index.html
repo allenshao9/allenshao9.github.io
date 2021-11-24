@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Oracle,事务&锁," />
+  <meta name="keywords" content="性能优化,JDK," />
 
 
 
@@ -83,18 +83,25 @@
 
 
 
-<meta name="description" content="Oracle事务&amp;锁事务特性在关系型数据库（BD2,Oracle,Sybase,Informix和Sql Server）最小的恢复和交易单位为一个事务，事务具有ACID（原子性，一致性，隔离性，永久性）特征。关系数据库为了确保并发用户在存取同一数据库对象的正确性（即无脏读，无丢失更新，可重复读，无幻读），数据库中引入了锁机制。基本的锁类型：共享锁S和排它锁X。 事务隔离级别Oracle锁机">
+<meta name="description" content="JDK监控和故障处理工具为了便于我们分析JVM虚拟机性能与诊断故障，java自带了命令行工具； JDK 命令行工具   名称 功能描述    jcmd 查看Java进程的类、线程、JVM属性等信息   jps 显示当前所有java进程pid的命令   jinfo 查看虚拟机的配置信息   jstat 监视虚拟机各种运行状态信息   jmap 生成堆转储快照、查看JVM信息   jstack 生成虚">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Oracle事务&amp;锁">
-<meta property="og:url" content="https://ysshao.cn/Oracle/Oracle_Tran/index.html">
+<meta property="og:title" content="JDK监控和故障处理工具">
+<meta property="og:url" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/index.html">
 <meta property="og:site_name" content="Ysshao&#39;Blog">
-<meta property="og:description" content="Oracle事务&amp;锁事务特性在关系型数据库（BD2,Oracle,Sybase,Informix和Sql Server）最小的恢复和交易单位为一个事务，事务具有ACID（原子性，一致性，隔离性，永久性）特征。关系数据库为了确保并发用户在存取同一数据库对象的正确性（即无脏读，无丢失更新，可重复读，无幻读），数据库中引入了锁机制。基本的锁类型：共享锁S和排它锁X。 事务隔离级别Oracle锁机">
-<meta property="article:published_time" content="2020-04-21T10:11:30.000Z">
-<meta property="article:modified_time" content="2020-04-22T05:34:10.880Z">
+<meta property="og:description" content="JDK监控和故障处理工具为了便于我们分析JVM虚拟机性能与诊断故障，java自带了命令行工具； JDK 命令行工具   名称 功能描述    jcmd 查看Java进程的类、线程、JVM属性等信息   jps 显示当前所有java进程pid的命令   jinfo 查看虚拟机的配置信息   jstat 监视虚拟机各种运行状态信息   jmap 生成堆转储快照、查看JVM信息   jstack 生成虚">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124102216135.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124105947939.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124110021595.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124111644645.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112025332.png">
+<meta property="og:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112312937.png">
+<meta property="article:published_time" content="2021-11-24T06:40:00.000Z">
+<meta property="article:modified_time" content="2021-11-24T06:41:28.594Z">
 <meta property="article:author" content="ysshao">
-<meta property="article:tag" content="Oracle">
-<meta property="article:tag" content="事务&amp;锁">
+<meta property="article:tag" content="性能优化">
+<meta property="article:tag" content="JDK">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ysshao.cn/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124102216135.png">
 
 
 
@@ -124,13 +131,13 @@
 
 
 
-  <link rel="canonical" href="https://ysshao.cn/Oracle/Oracle_Tran/"/>
+  <link rel="canonical" href="https://ysshao.cn/JDK/JDK_Monitoring_tools/"/>
 
 
 
 
 
-  <title>Oracle事务&锁 | Ysshao'Blog</title>
+  <title>JDK监控和故障处理工具 | Ysshao'Blog</title>
   
 
 
@@ -312,7 +319,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://ysshao.cn/Oracle/Oracle_Tran/">
+    <link itemprop="mainEntityOfPage" href="https://ysshao.cn/JDK/JDK_Monitoring_tools/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="ysshao">
@@ -329,12 +336,16 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Oracle事务&锁</h1>
+          <h1 class="post-title" itemprop="name headline">JDK监控和故障处理工具</h1>
         
 
         <div class="post-meta">
           <span class="post-time">
           
+					    <i class="fa fa-thumb-tack"></i>
+					    <font color="green">置顶</font>
+					    <span class="post-meta-divider">|</span>
+					
             
               <span class="post-meta-item-icon">
                 <i class="fa fa-calendar-o"></i>
@@ -342,8 +353,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-21T18:11:30+08:00">
-                2020-04-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-11-24T14:40:00+08:00">
+                2021-11-24
               </time>
             
 
@@ -365,8 +376,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Oracle/" itemprop="url" rel="index">
-                    <span itemprop="name">Oracle</span>
+                  <a href="/categories/JDK/" itemprop="url" rel="index">
+                    <span itemprop="name">JDK</span>
                   </a>
                 </span>
 
@@ -377,10 +388,23 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/JDK/JDK_Monitoring_tools/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="JDK/JDK_Monitoring_tools/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
 
           
           
-             <span id="/Oracle/Oracle_Tran/" class="leancloud_visitors" data-flag-title="Oracle事务&锁">
+             <span id="/JDK/JDK_Monitoring_tools/" class="leancloud_visitors" data-flag-title="JDK监控和故障处理工具">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -405,7 +429,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  138
+                  3.5k
                 </span>
               
 
@@ -421,7 +445,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1
+                  12
                 </span>
               
             </div>
@@ -442,9 +466,357 @@
       
 
       
-        <h1 id="Oracle事务-amp-锁"><a href="#Oracle事务-amp-锁" class="headerlink" title="Oracle事务&amp;锁"></a>Oracle事务&amp;锁</h1><h2 id="事务特性"><a href="#事务特性" class="headerlink" title="事务特性"></a>事务特性</h2><p>在关系型数据库（BD2,Oracle,Sybase,Informix和Sql Server）最小的恢复和交易单位为一个事务，事务具有ACID（原子性，一致性，隔离性，永久性）特征。关系数据库为了确保并发用户在存取同一数据库对象的正确性（即无脏读，无丢失更新，可重复读，无幻读），数据库中引入了锁机制。基本的锁类型：共享锁S和排它锁X。</p>
-<h2 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h2><h2 id="Oracle锁机制"><a href="#Oracle锁机制" class="headerlink" title="Oracle锁机制"></a>Oracle锁机制</h2><p>准备更新中…… </p>
-<p>​    </p>
+        <h1 id="JDK监控和故障处理工具"><a href="#JDK监控和故障处理工具" class="headerlink" title="JDK监控和故障处理工具"></a>JDK监控和故障处理工具</h1><p>为了便于我们分析JVM虚拟机性能与诊断故障，java自带了命令行工具；</p>
+<h2 id="JDK-命令行工具"><a href="#JDK-命令行工具" class="headerlink" title="JDK 命令行工具"></a>JDK 命令行工具</h2><table>
+<thead>
+<tr>
+<th><strong>名称</strong></th>
+<th><strong>功能</strong>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>jcmd</td>
+<td>查看Java进程的类、线程、JVM属性等信息</td>
+</tr>
+<tr>
+<td>jps</td>
+<td>显示当前所有java进程pid的命令</td>
+</tr>
+<tr>
+<td>jinfo</td>
+<td>查看虚拟机的配置信息</td>
+</tr>
+<tr>
+<td>jstat</td>
+<td>监视虚拟机各种运行状态信息</td>
+</tr>
+<tr>
+<td>jmap</td>
+<td>生成堆转储快照、查看JVM信息</td>
+</tr>
+<tr>
+<td>jstack</td>
+<td>生成虚拟机当前时刻的线程快照</td>
+</tr>
+</tbody></table>
+<h3 id="jcmd"><a href="#jcmd" class="headerlink" title="jcmd"></a>jcmd</h3><p>常用操作：</p>
+<ol>
+<li><p>列出当前所有运行的 java 进程：<code>jcmd -l</code></p>
+</li>
+<li><p>查看当前运行的 java 进程的信息：<code>jcmd PID XXX</code></p>
+<p>如查看JVM 的启动时长<code>jcmd PID VM.uptime</code> </p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VM.uptime</td>
+<td>查看 JVM 的启动时长</td>
+</tr>
+<tr>
+<td>GC.class_histogram</td>
+<td>查看 JVM 的类信息，这个可以查看每个类的实例数量和占用空间大小。</td>
+</tr>
+<tr>
+<td>VM.flags</td>
+<td>查看jvm使用了哪些虚拟机参数</td>
+</tr>
+<tr>
+<td>VM.system_properties</td>
+<td>查看jvm使用了哪些系统属性</td>
+</tr>
+<tr>
+<td>VM.command_line</td>
+<td>查看 JVM 的启动命令行</td>
+</tr>
+<tr>
+<td>Thread.print</td>
+<td>查看 JVM 的Thread Dump (javacore)</td>
+</tr>
+<tr>
+<td>GC.heap_dump FILE_NAME</td>
+<td>查看 JVM 的Heap Dump,注意，如果只指定文件名，默认会生成在启动 JVM 的目录里。</td>
+</tr>
+<tr>
+<td>GC.run</td>
+<td>对 JVM 执行 java.lang.System.gc()，告诉垃圾收集器打算进行垃圾收集，而垃圾收集器进不进行收集是不确定的</td>
+</tr>
+<tr>
+<td>PerfCounter.print</td>
+<td>查看指定进程的性能统计信息</td>
+</tr>
+</tbody></table>
+<p>jcmd拥有jmap的大部分功能，并且Oracle官方也建议使用jcmd代替jmap。</p>
+<h3 id="jps"><a href="#jps" class="headerlink" title="jps"></a>jps</h3><p>常用操作：</p>
+<ol>
+<li><p>输出完全的包名，应用主类名，jar的完全路径名 :<code>jsp -l</code></p>
+</li>
+<li><p>输出传递给JVM的参数 :<code>jsp -v</code></p>
+</li>
+<li><p>输出传递给 Java 进程 main() 函数的参数 :<code>jps -m</code></p>
+</li>
+</ol>
+<h3 id="jinfo"><a href="#jinfo" class="headerlink" title="jinfo"></a>jinfo</h3><p>常用操作：</p>
+<ol>
+<li>输出当前 jvm 进程的全部参数和系统属性 (第一部分是系统的属性，第二部分是 JVM 的参数)：<code>jinfo vmid</code> </li>
+<li>查看jvm的参数<code>jinfo -flags pid</code></li>
+<li>查看java系统参数<code>jinfo -sysprops pid</code></li>
+</ol>
+<h3 id="jstat"><a href="#jstat" class="headerlink" title="jstat"></a>jstat</h3><p>​    常用操作:</p>
+<p>​    查看JVM信息：<code>jstat -XXX PID</code></p>
+<p>​    固定次数频率查看信息<code>jstat -gc pid [间隔时间/毫秒] [查询次数]</code></p>
+<p>​    详细查看堆内各个部分的使用量，以及加载类的数量。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>class</td>
+<td>显示加载class的数量，及所占空间等信息。</td>
+</tr>
+<tr>
+<td>compiler</td>
+<td>显示VM实时编译的数量等信息。</td>
+</tr>
+<tr>
+<td>gc</td>
+<td>显示gc的信息，查看gc的次数，及时间</td>
+</tr>
+<tr>
+<td>gccapacity</td>
+<td>显示，VM内存中三代（young,old,perm）对象的使用和占用大小</td>
+</tr>
+<tr>
+<td>gcnew</td>
+<td>显示新生代信息</td>
+</tr>
+<tr>
+<td>gcnewcapcacity</td>
+<td>显示新生代大小与使用情况</td>
+</tr>
+<tr>
+<td>gcold</td>
+<td>显示老年代和永久代的信息</td>
+</tr>
+<tr>
+<td>gcutil</td>
+<td>显示垃圾收集信息</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>jstat -gc pid: 可以显示<strong>gc的信息</strong>，查看gc的次数，及时间。</p>
+<p>jstat -gc  pid 3000 3：每隔3秒打印一次，共计3次。</p>
+<table>
+<thead>
+<tr>
+<th>显示列名</th>
+<th>具体描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S0C</td>
+<td>年轻代中第一个survivor（幸存区）的容量</td>
+</tr>
+<tr>
+<td>S1C</td>
+<td>年轻代中第二个survivor（幸存区）的容量</td>
+</tr>
+<tr>
+<td>S0U</td>
+<td>年轻代中第一个survivor（幸存区）目前已使用空间</td>
+</tr>
+<tr>
+<td>S1U</td>
+<td>年轻代中第二个survivor（幸存区）目前已使用空间</td>
+</tr>
+<tr>
+<td>EC</td>
+<td>年轻代中Eden（伊甸园）的容量</td>
+</tr>
+<tr>
+<td>EU</td>
+<td>年轻代中Eden（伊甸园）目前已使用空间</td>
+</tr>
+<tr>
+<td>OC</td>
+<td>Old代的容量</td>
+</tr>
+<tr>
+<td>OU</td>
+<td>Old代目前已使用空间</td>
+</tr>
+<tr>
+<td>PC/MC</td>
+<td>永久代/元空间的容量</td>
+</tr>
+<tr>
+<td>PU/MU</td>
+<td>永久代/元空间目前已使用空间</td>
+</tr>
+<tr>
+<td>YGC</td>
+<td>从应用程序启动到采样时年轻代中gc次数</td>
+</tr>
+<tr>
+<td>YGCT</td>
+<td>从应用程序启动到采样时年轻代中gc所用时间(s)</td>
+</tr>
+<tr>
+<td>FGC</td>
+<td>从应用程序启动到采样时old代(全gc)gc次数</td>
+</tr>
+<tr>
+<td>FGCT</td>
+<td>从应用程序启动到采样时old代(全gc)gc所用时间(s)</td>
+</tr>
+<tr>
+<td>GCT</td>
+<td>从应用程序启动到采样时gc用的总时间(s)</td>
+</tr>
+</tbody></table>
+<p>jstat -class pid: 可以显示<strong>类加载统计</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>显示列名</th>
+<th>具体描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Loaded</td>
+<td>加载class的数量</td>
+</tr>
+<tr>
+<td>Bytes</td>
+<td>所占用空间大小</td>
+</tr>
+<tr>
+<td>Unloaded</td>
+<td>未加载数量</td>
+</tr>
+<tr>
+<td>Time</td>
+<td>时间</td>
+</tr>
+</tbody></table>
+</blockquote>
+<h3 id="jmap"><a href="#jmap" class="headerlink" title="jmap"></a>jmap</h3><p><code>jmap</code>（Memory Map for Java）命令用于生成堆转储快照。 如果不使用 <code>jmap</code> 命令，要想获取 Java 堆转储，可以使用 <code>“-XX:+HeapDumpOnOutOfMemoryError”</code> 参数，可以让虚拟机在 OOM 异常出现之后自动生成 dump 文件，Linux 命令下可以通过 <code>kill -3</code> 发送进程退出信号也能拿到 dump 文件。</p>
+<p><code>jmap</code> 的作用并不仅仅是为了获取 dump 文件，它还可以查询 finalizer 执行队列、Java 堆和永久代的详细信息，如空间使用率、当前使用的是哪种收集器等。和<code>jinfo</code>一样，<code>jmap</code>有不少功能在 Windows 平台下也是受限制的。</p>
+<p>常用操作：</p>
+<p><code>jmap -heap pid</code> 查看当前堆的大小分配情况。</p>
+<p><code>jmap -dump:format=b,file=/home/weblogic/temp/heap.hprof pid</code> 生产堆转储文件。</p>
+<h3 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h3><p><code>jstack</code>（Stack Trace for Java）命令用于生成虚拟机当前时刻的线程快照。线程快照就是当前虚拟机内每一条线程正在执行的方法堆栈的集合.</p>
+<p>生成线程快照的目的主要是定位线程长时间出现停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等都是导致线程长时间停顿的原因。线程出现停顿的时候通过<code>jstack</code>来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做些什么事情，或者在等待些什么资源。</p>
+<p>常用操作：</p>
+<p><code>jstack -l pid</code>查看线程堆栈信息</p>
+<p><code>jstack -l pid &gt; javacore_pid.txt</code> 输出线程堆栈信息到文件。</p>
+<h2 id="JDK-可视化分析工具"><a href="#JDK-可视化分析工具" class="headerlink" title="JDK 可视化分析工具"></a>JDK 可视化分析工具</h2><h3 id="JConsole"><a href="#JConsole" class="headerlink" title="JConsole"></a>JConsole</h3><p>Jconsole是JDK自带的监控工具，在JDK/bin目录下可以找到（jconsole.exe）。它用于连接正在运行的本地或者远程的JVM，对运行在java应用程序的资源消耗和性能进行监控，并画出大量的图表，提供强大的可视化界面。而且本身占用的服务器内存很小，甚至可以说几乎不消耗。</p>
+<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124102216135.png" alt="image-20211124102216135"></p>
+<blockquote>
+<p>如果需要使用 JConsole 连接远程进程，可以在远程 Java 程序启动时加上下面这些参数:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-Djava.rmi.server.hostname=ip</span><br><span class="line">-Dcom.sun.management.jmxremote.port=60001   //监控的端口号</span><br><span class="line">-Dcom.sun.management.jmxremote.authenticate=false   //关闭认证</span><br><span class="line">-Dcom.sun.management.jmxremote.ssl=false</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124105947939.png" alt="image-20211124105947939"></p>
+<p>Jconsole能捕获到以下信息：</p>
+<ol>
+<li>概述 － JVM概述和一些监控变量的信息</li>
+<li>内存 － 内存的使用信息</li>
+<li>线程 － 线程的使用信息</li>
+<li>类 － 加载java类的信息</li>
+<li>VM － JVM摘要</li>
+<li>MBeans － 所有MBeans的信息</li>
+</ol>
+<h3 id="Visual-VM"><a href="#Visual-VM" class="headerlink" title="Visual VM"></a>Visual VM</h3><p>VisualVM 是一款免费的，集成了多个 JDK 命令行工具的可视化工具，JDK/bin目录下可以找到（jvisualvm.exe）它能为您提供强大的分析能力，对 Java 应用程序做性能分析和调优。这些功能包括生成和分析海量数据、跟踪内存泄漏、监控垃圾回收器、执行内存和 CPU 分析，同时它还支持在 MBeans 上进行浏览和操作。本文主要介绍如何使用 VisualVM 进行性能分析及调优。</p>
+<p>远程连接方式同JConsole。需要监控的进程添加jvm参数。</p>
+<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124110021595.png" alt="image-20211124110021595"></p>
+<p>VisualVM 可提供</p>
+<p><strong>监视</strong>：监视是一种用来查看应用程序运行时行为的一般方法。通常会有多个视图（View）分别实时地显示 CPU 使用情况、内存使用情况、线程状态以及其他一些有用的信息，以便用户能很快地发现问题的关键所在。</p>
+<p>转储：性能分析工具从内存中获得当前状态数据并存储到文件用于静态的性能分析。Java 程序是通过在启动 Java 程序时添加适当的条件参数来触发转储操作的。它包括以下三种：</p>
+<ul>
+<li>系统转储：JVM 生成的本地系统的转储，又称作核心转储。一般的，系统转储数据量大，需要平台相关的工具去分析，如 Windows 上的 windbg 和 Linux 上的 gdb。</li>
+<li>Java 转储：JVM 内部生成的格式化后的数据，包括线程信息，类的加载信息以及堆的统计数据。通常也用于检测死锁。</li>
+<li>堆转储：JVM 将所有对象的堆内容存储到文件。</li>
+</ul>
+<p><strong>快照</strong>：应用程序启动后，性能分析工具开始收集各种运行时数据，其中一些数据直接显示在监视视图中，而另外大部分数据被保存在内部，直到用户要求获取快照，基于这些保存的数据的统计信息才被显示出来。快照包含了应用程序在一段时间内的执行信息，通常有 CPU 快照和内存快照两种类型。</p>
+<ul>
+<li>CPU 快照：主要包含了应用程序中函数的调用关系及运行时间，这些信息通常可以在 CPU 快照视图中进行查看。</li>
+<li>内存快照：主要包含了内存的分配和使用情况、载入的所有类、存在的对象信息及对象间的引用关系等。这些信息通常可以在内存快照视图中进行查看。</li>
+</ul>
+<p><strong>性能分析</strong>：性能分析是通过收集程序运行时的执行数据来帮助开发人员定位程序需要被优化的部分，从而提高程序的运行速度或是内存使用效率，主要有以下三个方面：</p>
+<ul>
+<li>CPU 性能分析：CPU 性能分析的主要目的是统计函数的调用情况及执行时间，或者更简单的情况就是统计应用程序的 CPU 使用情况。通常有 CPU 监视和 CPU 快照两种方式来显示 CPU 性能分析结果。</li>
+<li>内存性能分析：内存性能分析的主要目的是通过统计内存使用情况检测可能存在的内存泄露问题及确定优化内存使用的方向。通常有内存监视和内存快照两种方式来显示内存性能分析结果。</li>
+<li>线程性能分析：线程性能分析主要用于在多线程应用程序中确定内存的问题所在。一般包括线程的状态变化情况，死锁情况和某个线程在线程生命期内状态的分布情况等。</li>
+</ul>
+<h3 id="Arthas-jvm"><a href="#Arthas-jvm" class="headerlink" title="Arthas jvm"></a>Arthas jvm</h3><p><strong>阿里巴巴开源的性能分析神器Arthas</strong></p>
+<p>介绍了几种常见的jvm方面调优的场景，用的都是jdk自带的小工具，比如jps、jmap、jstack等。用这些自带的工具排查问题时最大的痛点就是过程比较麻烦，就好比如排查cpu占用率过高的问题，就要top-&gt;jps-&gt;printf-&gt;jstack等一系列的操作。</p>
+<p>上面两款工具他们的<strong>优点</strong>是可以图形界面上看到各维度的性能数据，使用者根据这些数据进行综合分析，然后判断哪里出现了性能问题。</p>
+<p>但是这两款工具也有个<strong>缺点</strong>，都必须在服务端项目进程中配置相关的监控参数。然后工具通过远程连接到项目进程，获取相关的数据。这样就会带来一些不便，比如线上环境的网络是隔离的，本地的监控工具根本连不上线上环境。那么Arthas就是一款工具不需要远程连接，也不需要配置监控参数的监控工具。</p>
+<p>它能带给你解决以下几个问题：</p>
+<blockquote>
+<p>这个类从哪个 jar 包加载的？为什么会报各种类相关的 Exception？</p>
+<p>我改的代码为什么没有执行到？难道是我没 commit？分支搞错了？</p>
+<p>遇到问题无法在线上 debug，难道只能通过加日志再重新发布吗？</p>
+<p>线上遇到某个用户的数据处理有问题，但线上同样无法 debug，线下无法重现！</p>
+<p>是否有一个全局视角来查看系统的运行状况？</p>
+<p>有什么办法可以监控到JVM的实时运行状态？</p>
+</blockquote>
+<ul>
+<li><strong>安装和使用</strong></li>
+</ul>
+<p>linux下安装：<code>wget https://alibaba.github.io/arthas/arthas-boot.jar</code></p>
+<p>运行<code>java -jar arthas-boot.jar</code></p>
+<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124111644645.png" alt="image-20211124111644645"></p>
+<ul>
+<li><strong>整体监控数据</strong></li>
+</ul>
+<p>在arthas的命令行界面，输入<code>dashboard</code>，会实时展示当前进程的的多线程状态、Jvm各区域、GC情况等信息</p>
+<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112025332.png" alt="image-20211124112025332"></p>
+<ul>
+<li><p><strong>查看线程监控数据</strong></p>
+<p>常用参数</p>
+<p>输入thread会显示所有线程的状态信息</p>
+<p>输入thread -n 3会显示当前最忙的3个线程，可以用来排查线程CPU消耗</p>
+<p>输入thread -b 会显示当前处于BLOCKED状态的线程，可以排查线程锁的问题</p>
+<p><img src="/JDK/JDK_Monitoring_tools/JDK_Monitoring_tools%5Cimage-20211124112312937.png" alt="image-20211124112312937"></p>
+</li>
+<li><p><strong>查看JVM数据</strong></p>
+<p>输入jvm，查看jvm详细的性能数据</p>
+</li>
+<li><p>其他命令</p>
+<p>arthas还提供了很多用于监控的命令，比如监控某个方法的执行时间，反编译线上的class文件，甚至在不重启java应用的情况下直接替换某个类。官方的使用文档已经写得太详细了，这里就不再一一介绍了，大家可以自己尝试。<a href="https://arthas.aliyun.com/doc/" target="_blank" rel="noopener">Arthas 用户文档 — Arthas 3.5.4 文档 (aliyun.com)</a></p>
+<blockquote>
+<ul>
+<li><a href="https://arthas.aliyun.com/doc/dashboard.html" target="_blank" rel="noopener">dashboard</a>——当前系统的实时数据面板</li>
+<li><a href="https://arthas.aliyun.com/doc/thread.html" target="_blank" rel="noopener">thread</a>——查看当前 JVM 的线程堆栈信息</li>
+<li><a href="https://arthas.aliyun.com/doc/jvm.html" target="_blank" rel="noopener">jvm</a>——查看当前 JVM 的信息</li>
+<li><a href="https://arthas.aliyun.com/doc/sysprop.html" target="_blank" rel="noopener">sysprop</a>——查看和修改JVM的系统属性</li>
+<li><a href="https://arthas.aliyun.com/doc/sysenv.html" target="_blank" rel="noopener">sysenv</a>——查看JVM的环境变量</li>
+<li><a href="https://arthas.aliyun.com/doc/vmoption.html" target="_blank" rel="noopener">vmoption</a>——查看和修改JVM里诊断相关的option</li>
+<li><a href="https://arthas.aliyun.com/doc/perfcounter.html" target="_blank" rel="noopener">perfcounter</a>——查看当前 JVM 的Perf Counter信息</li>
+<li><a href="https://arthas.aliyun.com/doc/logger.html" target="_blank" rel="noopener">logger</a>——查看和修改logger</li>
+<li><a href="https://arthas.aliyun.com/doc/getstatic.html" target="_blank" rel="noopener">getstatic</a>——查看类的静态属性</li>
+<li><a href="https://arthas.aliyun.com/doc/ognl.html" target="_blank" rel="noopener">ognl</a>——执行ognl表达式</li>
+<li><a href="https://arthas.aliyun.com/doc/mbean.html" target="_blank" rel="noopener">mbean</a>——查看 Mbean 的信息</li>
+<li><a href="https://arthas.aliyun.com/doc/heapdump.html" target="_blank" rel="noopener">heapdump</a>——dump java heap, 类似jmap命令的heap dump功能</li>
+<li><a href="https://arthas.aliyun.com/doc/vmtool.html" target="_blank" rel="noopener">vmtool</a>——从jvm里查询对象，执行forceGc</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p>​    上面为具体的监控工具，针对<strong>Java Core和Heap Dump</strong>还需要专业工具进行特定分析。</p>
+<ol>
+<li>MemoryAnalyzer工具堆转储文件，用于分析内存溢出或泄露情况。</li>
+<li>IBM的相关jar包，jca465.jar分析javacore文件；ha457.jar分析堆dmp文件。</li>
+</ol>
 
       
     </div>
@@ -465,7 +837,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://ysshao.cn/Oracle/Oracle_Tran/" title="Oracle事务&锁">https://ysshao.cn/Oracle/Oracle_Tran/</a>
+    <a href="https://ysshao.cn/JDK/JDK_Monitoring_tools/" title="JDK监控和故障处理工具">https://ysshao.cn/JDK/JDK_Monitoring_tools/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>
@@ -488,9 +860,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Oracle/" rel="tag"><i class="fa fa-tag"></i> Oracle</a>
+            <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 性能优化</a>
           
-            <a href="/tags/%E4%BA%8B%E5%8A%A1-%E9%94%81/" rel="tag"><i class="fa fa-tag"></i> 事务&锁</a>
+            <a href="/tags/JDK/" rel="tag"><i class="fa fa-tag"></i> JDK</a>
           
         </div>
       
@@ -518,8 +890,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/Oracle/SQL-Oracle/" rel="next" title="你真的了解“SQL”吗？">
-                <i class="fa fa-chevron-left"></i> 你真的了解“SQL”吗？
+              <a href="/open-source/Spring_SourceCode/" rel="next" title="Spring IOC 容器源码分析">
+                <i class="fa fa-chevron-left"></i> Spring IOC 容器源码分析
               </a>
             
           </div>
@@ -527,10 +899,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/Oracle/SQL/Oracle_SQL_optimization/" rel="prev" title="SQL性能优化案例">
-                SQL性能优化案例 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -558,6 +926,20 @@
 
 
           
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
 
         </div>
         
@@ -688,7 +1070,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Oracle事务-amp-锁"><span class="nav-number">1.</span> <span class="nav-text">Oracle事务&amp;锁</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#事务特性"><span class="nav-number">1.1.</span> <span class="nav-text">事务特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事务隔离级别"><span class="nav-number">1.2.</span> <span class="nav-text">事务隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Oracle锁机制"><span class="nav-number">1.3.</span> <span class="nav-text">Oracle锁机制</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JDK监控和故障处理工具"><span class="nav-number">1.</span> <span class="nav-text">JDK监控和故障处理工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-命令行工具"><span class="nav-number">1.1.</span> <span class="nav-text">JDK 命令行工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jcmd"><span class="nav-number">1.1.1.</span> <span class="nav-text">jcmd</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jps"><span class="nav-number">1.1.2.</span> <span class="nav-text">jps</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jinfo"><span class="nav-number">1.1.3.</span> <span class="nav-text">jinfo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jstat"><span class="nav-number">1.1.4.</span> <span class="nav-text">jstat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jmap"><span class="nav-number">1.1.5.</span> <span class="nav-text">jmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jstack"><span class="nav-number">1.1.6.</span> <span class="nav-text">jstack</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-可视化分析工具"><span class="nav-number">1.2.</span> <span class="nav-text">JDK 可视化分析工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JConsole"><span class="nav-number">1.2.1.</span> <span class="nav-text">JConsole</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Visual-VM"><span class="nav-number">1.2.2.</span> <span class="nav-text">Visual VM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Arthas-jvm"><span class="nav-number">1.2.3.</span> <span class="nav-text">Arthas jvm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#补充"><span class="nav-number">1.2.4.</span> <span class="nav-text">补充</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -1144,6 +1526,18 @@ if(canvas.getContext){
       <script id="dsq-count-scr" src="https://.disqus.com/count.js" async></script>
     
 
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://ysshao.cn/JDK/JDK_Monitoring_tools/';
+          this.page.identifier = 'JDK/JDK_Monitoring_tools/';
+          this.page.title = 'JDK监控和故障处理工具';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
     
 
   
